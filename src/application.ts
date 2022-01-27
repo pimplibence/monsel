@@ -17,8 +17,8 @@ export class Application extends BaseApplication {
 
         await conn.connect();
 
-        const items = await PandaDocument.find<PandaDocument>({});
+        const item = await PandaDocument.findOne<PandaDocument>({});
 
-        console.log(items[0]);
+        console.log(item);
     }
 }
