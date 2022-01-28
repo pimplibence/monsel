@@ -19,6 +19,15 @@ export interface PaginateResponse<T extends AbstractDocument> {
 }
 
 export abstract class AbstractDocument {
+    public _id: ObjectId | string;
+    protected _document: mongoose.Document;
+    protected _isInstance = true;
+
+    constructor() {
+        this.hideProperty('_document');
+        this.hideProperty('_isInstance');
+    }
+
     /**
      * Returns with mongoose schema options
      */
@@ -86,6 +95,10 @@ export abstract class AbstractDocument {
         DecoratorHelper.setMetadata(this, 'Mongoose', mongooseInstance);
     }
 
+    ////////////////////////
+    // REPOSITORY SECTION //
+    ////////////////////////
+
     /**
      * Returns with mongoose instance
      * - this instance alredy contains models
@@ -122,10 +135,6 @@ export abstract class AbstractDocument {
         return instance;
     }
 
-    ////////////////////////
-    // REPOSITORY SECTION //
-    ////////////////////////
-
     public static async count(filter: FilterQuery<any> = {}, options?: QueryOptions | null): Promise<number> {
         const model = this.getModel();
 
@@ -155,6 +164,21 @@ export abstract class AbstractDocument {
 
         return this.bootFromDocument<T>(document);
     }
+
+    // Model.deleteMany()
+    // Model.deleteOne()
+    // Model.findByIdAndDelete()
+    // Model.findByIdAndRemove()
+    // Model.findByIdAndUpdate()
+    // Model.findOneAndDelete()
+    // Model.findOneAndRemove()
+    // Model.findOneAndReplace()
+    // Model.findOneAndUpdate()
+    // Model.replaceOne()
+
+    ///////////////////////////////
+    // END OF REPOSITORY SECTION //
+    ///////////////////////////////
 
     public static async findById<T extends AbstractDocument>(id: any, options?: QueryOptions | null): Promise<T | null> {
         const model = this.getModel();
@@ -203,33 +227,22 @@ export abstract class AbstractDocument {
         return model.updateOne(filter, update, options);
     }
 
-    // Model.deleteMany()
-    // Model.deleteOne()
-    // Model.findByIdAndDelete()
-    // Model.findByIdAndRemove()
-    // Model.findByIdAndUpdate()
-    // Model.findOneAndDelete()
-    // Model.findOneAndRemove()
-    // Model.findOneAndReplace()
-    // Model.findOneAndUpdate()
-    // Model.replaceOne()
-
-    ///////////////////////////////
-    // END OF REPOSITORY SECTION //
-    ///////////////////////////////
-
-    public _id: ObjectId | string;
-    protected _document: mongoose.Document;
-    protected _isInstance = true;
-
-    constructor() {
-        this.hideProperty('_document');
-        this.hideProperty('_isInstance');
-    }
-
     /////////////////////
     // THE MIGHTY SAVE //
     /////////////////////
+
+    public static async syncIndexes() {
+        const model = this.getModel();
+        return model.syncIndexes();
+    }
+
+    ////////////////////////////
+    // END OF THE MIGHTY SAVE //
+    ////////////////////////////
+
+    //////////////////////
+    // POPULATE SECTION //
+    //////////////////////
 
     public async save(options?: QueryOptions): Promise<this> {
         const model = this.getModel();
@@ -258,19 +271,62 @@ export abstract class AbstractDocument {
         return this;
     }
 
-    ////////////////////////////
-    // END OF THE MIGHTY SAVE //
-    ////////////////////////////
-
-    //////////////////////
-    // POPULATE SECTION //
-    //////////////////////
-
     public async populate(options: PopulateOptions | PopulateOptions[]) {
         await this._document.populate(options);
         await this.loadValuesFromDocument();
 
         this.loadAfterPopulateDeep(this, this._document);
+    }
+
+    public async syncIndexes() {
+        const model = this.getModel();
+        return model.syncIndexes();
+    }
+
+    /////////////////////////////
+    // END OF POPULATE SECTION //
+    /////////////////////////////
+
+    ///////////////////
+    // INDEX SECTION //
+    ///////////////////
+
+    protected getSchemaOptions(): any {
+        return DecoratorHelper.getMetadata(this.constructor, 'SchemaOptions');
+    }
+
+    protected getMongoose(): mongoose.Mongoose {
+        return DecoratorHelper.getMetadata(this.constructor, 'Mongoose');
+    }
+
+    /////////////
+    // HELPERS //
+    /////////////
+
+    protected getModel(): mongoose.Model<any> {
+        return DecoratorHelper.getMetadata(this.constructor, 'Model');
+    }
+
+    protected loadValuesFromDocument(): any {
+        if (!this._document) {
+            return;
+        }
+
+        const schemaOptions = this.getSchemaOptions();
+
+        for (const key in schemaOptions) {
+            this[key] = this._document[key];
+        }
+
+        this._id = this._document._id;
+    }
+
+    protected hideProperty(property: string) {
+        Object.defineProperty(this, property, {
+            enumerable: false,
+            configurable: true,
+            writable: true,
+        });
     }
 
     private loadAfterPopulateDeep(instance: AbstractDocument, values: any) {
@@ -317,48 +373,6 @@ export abstract class AbstractDocument {
         }
 
         return ref.bootFromDocument(mongooseDocument);
-    }
-
-    /////////////////////////////
-    // END OF POPULATE SECTION //
-    /////////////////////////////
-
-    /////////////
-    // HELPERS //
-    /////////////
-
-    protected getSchemaOptions(): any {
-        return DecoratorHelper.getMetadata(this.constructor, 'SchemaOptions');
-    }
-
-    protected getMongoose(): mongoose.Mongoose {
-        return DecoratorHelper.getMetadata(this.constructor, 'Mongoose');
-    }
-
-    protected getModel(): mongoose.Model<any> {
-        return DecoratorHelper.getMetadata(this.constructor, 'Model');
-    }
-
-    protected loadValuesFromDocument(): any {
-        if (!this._document) {
-            return;
-        }
-
-        const schemaOptions = this.getSchemaOptions();
-
-        for (const key in schemaOptions) {
-            this[key] = this._document[key];
-        }
-
-        this._id = this._document._id;
-    }
-
-    protected hideProperty(property: string) {
-        Object.defineProperty(this, property, {
-            enumerable: false,
-            configurable: true,
-            writable: true,
-        });
     }
 
     ////////////////////

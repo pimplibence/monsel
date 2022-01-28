@@ -1,10 +1,10 @@
 import * as mongoose from 'mongoose';
-import { BaseDocument } from '../document/base.document';
+import { AbstractDocument } from "../document/abstract.document";
 
 interface ConnectionOptions {
     uri: string;
     options?: mongoose.ConnectOptions;
-    documents: Array<typeof BaseDocument>;
+    documents: Array<typeof AbstractDocument>;
 }
 
 export class Connection {
@@ -22,21 +22,30 @@ export class Connection {
         );
 
         for (const document of this.options.documents) {
-            await this.addDocument(document);
+            const schema = document.getSchema();
+            const name = document.getModelName();
+
+            const model = this.mongoose.model(name, schema, name, {
+                connection: this.mongoose.connection,
+                overwriteModels: true
+            });
+
+            document.setModel(model);
+            document.setMongoose(this.mongoose);
+
+            await document.syncIndexes();
         }
     }
 
-    private async addDocument(document: typeof BaseDocument) {
-        const schema = document.getSchema();
-        const name = document.getModelName();
+    public async disconnect() {
+        await this.mongoose.disconnect();
+    }
 
-        const model = this.mongoose.model(name, schema, name, {
-            connection: this.mongoose.connection
-        });
+    public async stats() {
+        return this.mongoose.connection.db.stats();
+    }
 
-        document.setMongoose(this.mongoose);
-        document.setModel(model);
-
-        await model.syncIndexes();
+    public async dropDatabase() {
+        return this.mongoose.connection.db.dropDatabase();
     }
 }

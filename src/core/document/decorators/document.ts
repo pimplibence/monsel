@@ -1,13 +1,13 @@
 import { cloneDeep } from 'lodash';
 import { DecoratorHelper } from '../../libs/decorators/decorator.helper';
-import { BaseDocument } from '../base.document';
+import { AbstractDocument } from '../abstract.document';
 
 interface DocumentOptions {
     collection: string;
 }
 
 export const document = (options: DocumentOptions) => {
-    return (target: typeof BaseDocument): any => {
+    return (target: typeof AbstractDocument): any => {
         const parentOptions: DocumentOptions = DecoratorHelper.getParentMetadata(target, 'DocumentOptions');
         options.collection = options.collection || parentOptions.collection;
         DecoratorHelper.setMetadata(target, 'DocumentOptions', cloneDeep(options));
