@@ -16,5 +16,5 @@ export class CountryDocument extends AbstractDocument {
     public leader: PeopleDocument;
 
     @refs(() => PeopleDocument)
-    public people: PeopleDocument;
+    public people: PeopleDocument[] = [];
 }

@@ -4,7 +4,7 @@ import { CountryDocument } from './_libs/documents/country.document';
 import { initConnection } from './_libs/init-connection';
 
 describe('document as instance', () => {
-    const connection = initConnection();
+    initConnection();
 
     it('create document instance and persist into database', async () => {
         const instance = new CountryDocument();

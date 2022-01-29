@@ -11,8 +11,8 @@ export class PeopleDocument extends AbstractDocument {
     public name: string;
 
     @refs(() => PeopleDocument)
-    public children: PeopleDocument;
+    public children: PeopleDocument[] = [];
 
     @refs(() => PeopleDocument)
-    public siblings: PeopleDocument;
+    public siblings: PeopleDocument[] = [];
 }

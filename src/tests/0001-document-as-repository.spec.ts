@@ -4,7 +4,7 @@ import { CountryDocument } from './_libs/documents/country.document';
 import { initConnection } from './_libs/init-connection';
 
 describe('document as repository', () => {
-    const connection = initConnection();
+    initConnection();
 
     describe('empty database', () => {
         it('#findOne should null', async () => {

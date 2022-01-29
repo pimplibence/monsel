@@ -5,7 +5,7 @@ import { PeopleDocument } from './_libs/documents/people.document';
 import { initConnection } from './_libs/init-connection';
 
 describe('populate', () => {
-    const connection = initConnection();
+    initConnection();
 
     it('empty state, single ref should be null, multi should be empty array', async () => {
         const country = new CountryDocument();
@@ -57,5 +57,50 @@ describe('populate', () => {
             .has.a.property('leader')
             .has.a.property('_id')
             .that.is.instanceof(ObjectId);
+    });
+
+    it('with populate, refs should be instances of another documents', async () => {
+        const country = await CountryDocument.findOne<CountryDocument>({}, {
+            populate: [
+                { path: 'leader' }
+            ]
+        });
+
+        for (const item of Array(1).fill(0)) {
+            const people = new PeopleDocument();
+            people.name = Math.random().toString();
+            await people.save();
+
+            country.people.push(people);
+        }
+
+        for (const item of country.people) {
+            const child = new PeopleDocument();
+            child.name = 'Child';
+            await child.save();
+            item.children.push(child);
+            await item.save();
+        }
+
+        await country.save();
+
+        await country.populate([
+            {
+                path: 'people',
+                populate: [
+                    { path: 'children' }
+                ]
+            }
+        ]);
+
+        for (const peopleOfCountry of country.people) {
+            expect(peopleOfCountry)
+                .is.instanceof(PeopleDocument);
+
+            for (const child of peopleOfCountry.children) {
+                expect(child)
+                    .is.instanceof(PeopleDocument);
+            }
+        }
     });
 });
