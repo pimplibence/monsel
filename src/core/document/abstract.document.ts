@@ -20,8 +20,8 @@ export interface PaginateResponse<T extends AbstractDocument> {
 
 export abstract class AbstractDocument {
     public _id: ObjectId | string;
-    protected _document: mongoose.Document;
-    protected _isInstance = true;
+    public _document: mongoose.Document;
+    public _isInstance = true;
 
     constructor() {
         this.hideProperty('_document');
@@ -95,10 +95,6 @@ export abstract class AbstractDocument {
         DecoratorHelper.setMetadata(this, 'Mongoose', mongooseInstance);
     }
 
-    ////////////////////////
-    // REPOSITORY SECTION //
-    ////////////////////////
-
     /**
      * Returns with mongoose instance
      * - this instance alredy contains models
@@ -135,13 +131,13 @@ export abstract class AbstractDocument {
         return instance;
     }
 
-    public static async count(filter: FilterQuery<any> = {}, options?: QueryOptions | null): Promise<number> {
+    public static async count<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<number> {
         const model = this.getModel();
 
         return model.count(filter);
     }
 
-    public static async find<T extends AbstractDocument>(filter: FilterQuery<any> = {}, options?: QueryOptions | null): Promise<T[]> {
+    public static async find<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
         const model = this.getModel();
 
         const documents = await model.find(filter, null, options);
@@ -149,11 +145,11 @@ export abstract class AbstractDocument {
         return documents.map((document) => this.bootFromDocument<T>(document));
     }
 
-    public static async findMany<T extends AbstractDocument>(filter: FilterQuery<any> = {}, options?: QueryOptions | null): Promise<T[]> {
+    public static async findMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
         return this.find(filter, options);
     }
 
-    public static async findOne<T extends AbstractDocument>(filter: FilterQuery<any> = {}, options?: QueryOptions | null): Promise<T | null> {
+    public static async findOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T | null> {
         const model = this.getModel();
 
         const document = await model.findOne(filter, null, options);
@@ -164,21 +160,6 @@ export abstract class AbstractDocument {
 
         return this.bootFromDocument<T>(document);
     }
-
-    // Model.deleteMany()
-    // Model.deleteOne()
-    // Model.findByIdAndDelete()
-    // Model.findByIdAndRemove()
-    // Model.findByIdAndUpdate()
-    // Model.findOneAndDelete()
-    // Model.findOneAndRemove()
-    // Model.findOneAndReplace()
-    // Model.findOneAndUpdate()
-    // Model.replaceOne()
-
-    ///////////////////////////////
-    // END OF REPOSITORY SECTION //
-    ///////////////////////////////
 
     public static async findById<T extends AbstractDocument>(id: any, options?: QueryOptions | null): Promise<T | null> {
         const model = this.getModel();
@@ -192,7 +173,7 @@ export abstract class AbstractDocument {
         return this.bootFromDocument<T>(document);
     }
 
-    public static async paginate<T extends AbstractDocument>(filter: FilterQuery<any> = {}, options?: PaginateOptions | null): Promise<PaginateResponse<T>> {
+    public static async paginate<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: PaginateOptions | null): Promise<PaginateResponse<T>> {
         const page = options?.page || 0;
         const limit = options?.limit || 0;
         const skip = page * limit;
@@ -215,34 +196,33 @@ export abstract class AbstractDocument {
         };
     }
 
-    public static async updateMany(filter: FilterQuery<any> = {}, update: UpdateQuery<any> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
+    public static async updateMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, update: UpdateQuery<T> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
         const model = this.getModel();
 
         return model.updateMany(filter, update, options);
     }
 
-    public static async updateOne(filter: FilterQuery<any> = {}, update: UpdateQuery<any> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
+    public static async updateOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, update: UpdateQuery<T> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
         const model = this.getModel();
 
         return model.updateOne(filter, update, options);
     }
-
-    /////////////////////
-    // THE MIGHTY SAVE //
-    /////////////////////
 
     public static async syncIndexes() {
         const model = this.getModel();
         return model.syncIndexes();
     }
 
-    ////////////////////////////
-    // END OF THE MIGHTY SAVE //
-    ////////////////////////////
-
-    //////////////////////
-    // POPULATE SECTION //
-    //////////////////////
+    // Model.deleteMany()
+    // Model.deleteOne()
+    // Model.findByIdAndDelete()
+    // Model.findByIdAndRemove()
+    // Model.findByIdAndUpdate()
+    // Model.findOneAndDelete()
+    // Model.findOneAndRemove()
+    // Model.findOneAndReplace()
+    // Model.findOneAndUpdate()
+    // Model.replaceOne()
 
     public async save(options?: QueryOptions): Promise<this> {
         const model = this.getModel();
@@ -271,11 +251,9 @@ export abstract class AbstractDocument {
         return this;
     }
 
-    public async populate(options: PopulateOptions | PopulateOptions[]) {
+    public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
         await this._document.populate(options);
         await this.loadValuesFromDocument();
-
-        this.loadAfterPopulateDeep(this, this._document);
     }
 
     public async syncIndexes() {
@@ -283,31 +261,25 @@ export abstract class AbstractDocument {
         return model.syncIndexes();
     }
 
-    /////////////////////////////
-    // END OF POPULATE SECTION //
-    /////////////////////////////
-
-    ///////////////////
-    // INDEX SECTION //
-    ///////////////////
-
-    protected getSchemaOptions(): any {
+    private getSchemaOptions(): any {
         return DecoratorHelper.getMetadata(this.constructor, 'SchemaOptions');
     }
 
-    protected getMongoose(): mongoose.Mongoose {
+    private getMongoose(): mongoose.Mongoose {
         return DecoratorHelper.getMetadata(this.constructor, 'Mongoose');
     }
 
-    /////////////
-    // HELPERS //
-    /////////////
-
-    protected getModel(): mongoose.Model<any> {
+    private getModel(): mongoose.Model<any> {
         return DecoratorHelper.getMetadata(this.constructor, 'Model');
     }
 
-    protected loadValuesFromDocument(): any {
+    /**
+     * Crucial method!
+     * This method loads and build the entire instance of document from mongoose document
+     *
+     * @protected
+     */
+    private loadValuesFromDocument(): any {
         if (!this._document) {
             return;
         }
@@ -319,9 +291,17 @@ export abstract class AbstractDocument {
         }
 
         this._id = this._document._id;
+
+        this.mapInstanceTree(this, this._document);
     }
 
-    protected hideProperty(property: string) {
+    /**
+     * Helper function to hide properties from instance proto
+     *
+     * @param property
+     * @protected
+     */
+    private hideProperty(property: string) {
         Object.defineProperty(this, property, {
             enumerable: false,
             configurable: true,
@@ -329,7 +309,14 @@ export abstract class AbstractDocument {
         });
     }
 
-    private loadAfterPopulateDeep(instance: AbstractDocument, values: any) {
+    /**
+     * This methods maps recursively the raw document and build the populated instances if it is possible
+     *
+     * @param instance
+     * @param values
+     * @private
+     */
+    private mapInstanceTree(instance: AbstractDocument, values: any) {
         const schemaOptions = instance.getSchemaOptions();
 
         for (const key in schemaOptions) {
@@ -342,12 +329,12 @@ export abstract class AbstractDocument {
             }
 
             instance[key] = multi
-                ? values?.[key]?.map((item, index) => this.loadAfterPopulateDeepChildMapper(values?.[key]?.[index], instance?.[key]?.[index], ref))
-                : this.loadAfterPopulateDeepChildMapper(values?.[key], instance?.[key], ref);
+                ? values?.[key]?.map((item, index) => this.mapInstanceTreeGetPropertyValue(values?.[key]?.[index], instance?.[key]?.[index], ref))
+                : this.mapInstanceTreeGetPropertyValue(values?.[key], instance?.[key], ref);
         }
     }
 
-    private loadAfterPopulateDeepChildMapper(mongooseDocument: mongoose.Document, notMongooseDocument: AbstractDocument, ref: typeof AbstractDocument) {
+    private mapInstanceTreeGetPropertyValue(mongooseDocument: mongoose.Document, notMongooseDocument: AbstractDocument, ref: typeof AbstractDocument) {
         if (!mongooseDocument) {
             return null;
         }
@@ -374,8 +361,4 @@ export abstract class AbstractDocument {
 
         return ref.bootFromDocument(mongooseDocument);
     }
-
-    ////////////////////
-    // END OF HELPERS //
-    ////////////////////
 }

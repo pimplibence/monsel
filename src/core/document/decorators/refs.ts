@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import { DecoratorHelper } from '../../libs/decorators/decorator.helper';
-import { BaseDocument } from '../base.document';
+import { AbstractDocument } from '../abstract.document';
 
-export const refs = (typeFn: () => typeof BaseDocument, options?: mongoose.SchemaDefinitionProperty) => {
+export const refs = (typeFn: () => typeof AbstractDocument, options?: mongoose.SchemaDefinitionProperty) => {
     return (target: any, propertyKey: string): any => {
         DecoratorHelper.initializePropertyDecorator(target, propertyKey);
 

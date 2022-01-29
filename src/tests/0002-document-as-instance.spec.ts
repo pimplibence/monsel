@@ -1,24 +1,10 @@
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
-import { Connection } from "../core/connection/connection";
-import { CountryDocument } from './_libs/country.document';
+import { CountryDocument } from './_libs/documents/country.document';
+import { initConnection } from './_libs/init-connection';
 
 describe('document as instance', () => {
-    const db = 'monsel';
-    const connection = new Connection({
-        uri: `mongodb://localhost:27017/${db}`,
-        documents: [
-            CountryDocument
-        ]
-    });
-
-    before(async () => {
-        await connection.connect();
-    });
-
-    after(async () => {
-        await connection.disconnect();
-    });
+    const connection = initConnection();
 
     it('create document instance and persist into database', async () => {
         const instance = new CountryDocument();

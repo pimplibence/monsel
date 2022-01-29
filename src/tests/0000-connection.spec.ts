@@ -1,27 +1,13 @@
 import * as assert from "assert";
-import { Connection } from "../core/connection/connection";
+import { initConnection } from './_libs/init-connection';
 
 describe('connection', () => {
-    const db = 'monsel';
-
-    const connection = new Connection({
-        uri: `mongodb://localhost:27017/${db}`,
-        documents: []
-    });
-
-    before(async () => {
-        await connection.connect();
-    });
-
-    after(async () => {
-        await connection.dropDatabase();
-        await connection.disconnect();
-    });
+    const connection = initConnection();
 
     it('communicate with mongo', async () => {
-        const stats = await connection.stats();
+        const stats = await connection.connection.stats();
 
-        assert.equal(stats.db, db);
+        assert.equal(stats.db, connection.database);
         assert.equal(!!stats.ok, true);
     });
 
