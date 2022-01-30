@@ -14,7 +14,7 @@ describe('document as repository', () => {
         });
 
         it('#find should be an empty array', async () => {
-            const response = await CountryDocument.find();
+            const response = await CountryDocument.findMany();
 
             expect(response)
                 .is.an('array')

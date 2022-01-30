@@ -53,6 +53,7 @@ export abstract class AbstractDocument {
      * Generates a mongoose schema
      */
     public static getSchema(): mongoose.Schema {
+        const documentOptions = this.getDocumentOptions();
         const options = this.getSchemaOptions();
         const schemaConstructorOptions = {};
 
@@ -76,7 +77,13 @@ export abstract class AbstractDocument {
             }
         }
 
-        return new mongoose.Schema(schemaConstructorOptions);
+        const schema = new mongoose.Schema(schemaConstructorOptions);
+
+        for (const index of documentOptions.indexes || []) {
+            schema.index(index.fields, index.options || {});
+        }
+
+        return schema;
     }
 
     /**

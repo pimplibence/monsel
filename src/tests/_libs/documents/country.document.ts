@@ -6,7 +6,12 @@ import { refs } from '../../../core/document/decorators/refs';
 import { PeopleDocument } from './people.document';
 
 @document({
-    collection: 'country'
+    collection: 'country',
+    indexes: [
+        { fields: { name: -1 } },
+        { fields: { leader: -1 } },
+        { fields: { people: -1 } },
+    ]
 })
 export class CountryDocument extends AbstractDocument {
     @property()
