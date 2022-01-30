@@ -1,3 +1,4 @@
+import * as mongoose from 'mongoose';
 import { AbstractDocument } from '../../../core/document/abstract.document';
 import { document } from '../../../core/document/decorators/document';
 import { property } from '../../../core/document/decorators/property';
@@ -16,6 +17,9 @@ import { PeopleDocument } from './people.document';
 export class CountryDocument extends AbstractDocument {
     @property()
     public name: string;
+
+    @property()
+    public code: string;
 
     @ref(() => PeopleDocument)
     public leader: PeopleDocument;
