@@ -137,16 +137,12 @@ export abstract class AbstractDocument {
         return model.count(filter);
     }
 
-    public static async find<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
+    public static async findMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
         const model = this.getModel();
 
         const documents = await model.find(filter, null, options);
 
         return documents.map((document) => this.bootFromDocument<T>(document));
-    }
-
-    public static async findMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
-        return this.find(filter, options);
     }
 
     public static async findOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T | null> {
@@ -208,13 +204,18 @@ export abstract class AbstractDocument {
         return model.updateOne(filter, update, options);
     }
 
-    public static async syncIndexes() {
+    public static async deleteMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<any> {
         const model = this.getModel();
-        return model.syncIndexes();
+
+        return model.deleteMany(filter, options);
     }
 
-    // Model.deleteMany()
-    // Model.deleteOne()
+    public static async deleteOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<any> {
+        const model = this.getModel();
+
+        return model.deleteOne(filter, options);
+    }
+
     // Model.findByIdAndDelete()
     // Model.findByIdAndRemove()
     // Model.findByIdAndUpdate()
@@ -222,7 +223,11 @@ export abstract class AbstractDocument {
     // Model.findOneAndRemove()
     // Model.findOneAndReplace()
     // Model.findOneAndUpdate()
-    // Model.replaceOne()
+
+    public static async syncIndexes() {
+        const model = this.getModel();
+        return model.syncIndexes();
+    }
 
     public async save(options?: QueryOptions): Promise<this> {
         const model = this.getModel();
