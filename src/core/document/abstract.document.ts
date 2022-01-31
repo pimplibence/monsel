@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
-import { UpdateResult } from 'mongodb';
+import { AggregateOptions, UpdateResult } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { FilterQuery, PopulateOptions, QueryOptions, UpdateQuery } from 'mongoose';
+import { FilterQuery, PipelineStage, PopulateOptions, QueryOptions, UpdateQuery } from 'mongoose';
 import { DecoratorHelper } from '../libs/decorators/decorator.helper';
 
 export interface PaginateOptions extends QueryOptions {
@@ -221,6 +221,20 @@ export abstract class AbstractDocument {
         const model = this.getModel();
 
         return model.deleteOne(filter, options);
+    }
+
+    public static async aggregate<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<any[]> {
+        const model = this.getModel();
+
+        return model.aggregate<mongoose.Document>(pipeline, options);
+    }
+
+    public static async aggregateAndMapResults<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<T[]> {
+        const model = this.getModel();
+
+        const items = await model.aggregate<mongoose.Document>(pipeline, options);
+
+        return items.map((item) => this.bootFromDocument<T>(item));
     }
 
     // Model.findByIdAndDelete()
