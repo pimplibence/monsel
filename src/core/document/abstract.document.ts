@@ -125,6 +125,10 @@ export abstract class AbstractDocument {
         return DecoratorHelper.getMetadata(this, 'Model');
     }
 
+    public static getLifecycleCallbackConfig(): any {
+        return DecoratorHelper.getMetadata(this, 'LifecycleCallbacks');
+    }
+
     /**
      * Makes a document instance from a mongoose document
      *
