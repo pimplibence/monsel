@@ -70,7 +70,6 @@ describe('populate', () => {
             const people = new PeopleDocument();
             people.name = Math.random().toString();
             await people.save();
-
             country.people.push(people);
         }
 

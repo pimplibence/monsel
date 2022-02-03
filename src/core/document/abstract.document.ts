@@ -134,10 +134,12 @@ export abstract class AbstractDocument {
      *
      * @param document
      */
-    public static bootFromDocument<T extends AbstractDocument>(document: mongoose.Document): T {
+    public static async bootFromDocument<T extends AbstractDocument>(document: mongoose.Document): Promise<T> {
         const instance = new (this as any)();
         instance._document = document;
-        instance.loadValuesFromDocument();
+
+        await instance.loadValuesFromDocument();
+        await instance.executeLifecycleCallbackType('afterLoad');
 
         return instance;
     }
@@ -153,7 +155,11 @@ export abstract class AbstractDocument {
 
         const documents = await model.find(filter, null, options);
 
-        return documents.map((document) => this.bootFromDocument<T>(document));
+        for (const index in documents) {
+            documents[index] = await this.bootFromDocument<T>(documents[index]);
+        }
+
+        return documents;
     }
 
     public static async findOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T | null> {
@@ -236,9 +242,13 @@ export abstract class AbstractDocument {
     public static async aggregateAndMapResults<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<T[]> {
         const model = this.getModel();
 
-        const items = await model.aggregate<mongoose.Document>(pipeline, options);
+        const items = await model.aggregate<any>(pipeline, options);
 
-        return items.map((item) => this.bootFromDocument<T>(item));
+        for (const index in items) {
+            items[index] = await this.bootFromDocument<T>(items[index]);
+        }
+
+        return items;
     }
 
     // Model.findByIdAndDelete()
@@ -260,13 +270,18 @@ export abstract class AbstractDocument {
         const isCreate = !this._document?._id;
 
         if (isCreate) {
+            await this.executeLifecycleCallbackType('beforeCreate');
+
             const instance = new model(this);
             this._document = await instance.save(options);
 
-            this.loadValuesFromDocument();
+            await this.loadValuesFromDocument();
+            await this.executeLifecycleCallbackType('afterCreate');
         }
 
         if (!isCreate) {
+            await this.executeLifecycleCallbackType('beforeUpdate');
+
             const schemaOptions = this.getSchemaOptions();
 
             for (const key in schemaOptions) {
@@ -274,16 +289,20 @@ export abstract class AbstractDocument {
             }
 
             this._document = await this._document.save();
-
-            this.loadValuesFromDocument();
+            await this.loadValuesFromDocument();
+            await this.executeLifecycleCallbackType('afterUpdate');
         }
 
         return this;
     }
 
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
+        await this.executeLifecycleCallbackType('beforePopulate');
+
         await this._document.populate(options);
         await this.loadValuesFromDocument();
+
+        await this.executeLifecycleCallbackType('afterPopulate');
     }
 
     public async syncIndexes() {
@@ -309,7 +328,7 @@ export abstract class AbstractDocument {
      *
      * @protected
      */
-    private loadValuesFromDocument(): any {
+    private async loadValuesFromDocument(): Promise<void> {
         if (!this._document) {
             return;
         }
@@ -322,7 +341,7 @@ export abstract class AbstractDocument {
 
         this._id = this._document._id;
 
-        this.mapInstanceTree(this, this._document);
+        await this.mapInstanceTree(this, this._document);
     }
 
     /**
@@ -346,7 +365,7 @@ export abstract class AbstractDocument {
      * @param values
      * @private
      */
-    private mapInstanceTree(instance: AbstractDocument, values: any) {
+    private async mapInstanceTree(instance: AbstractDocument, values: any) {
         const schemaOptions = instance.getSchemaOptions();
 
         for (const key in schemaOptions) {
@@ -358,13 +377,23 @@ export abstract class AbstractDocument {
                 continue;
             }
 
-            instance[key] = multi
-                ? values?.[key]?.map((item, index) => this.mapInstanceTreeGetPropertyValue(values?.[key]?.[index], instance?.[key]?.[index], ref))
-                : this.mapInstanceTreeGetPropertyValue(values?.[key], instance?.[key], ref);
+            if (multi) {
+                const mResult = [];
+
+                for (const index in values?.[key] || []) {
+                    mResult[index] = await this.mapInstanceTreeGetPropertyValue(values?.[key]?.[index], instance?.[key]?.[index], ref);
+                }
+
+                instance[key] = mResult;
+
+                // instance[key] = await Promise.all(values?.[key]?.map((item, index) => this.mapInstanceTreeGetPropertyValue(item, instance?.[key]?.[index], ref)));
+            } else {
+                instance[key] = await this.mapInstanceTreeGetPropertyValue(values?.[key], instance?.[key], ref);
+            }
         }
     }
 
-    private mapInstanceTreeGetPropertyValue(mongooseDocument: mongoose.Document, notMongooseDocument: AbstractDocument, ref: typeof AbstractDocument) {
+    private async mapInstanceTreeGetPropertyValue(mongooseDocument: mongoose.Document, notMongooseDocument: AbstractDocument, ref: typeof AbstractDocument) {
         if (!mongooseDocument) {
             return null;
         }
@@ -390,5 +419,14 @@ export abstract class AbstractDocument {
         }
 
         return ref.bootFromDocument(mongooseDocument);
+    }
+
+    private async executeLifecycleCallbackType(type: string) {
+        const config = (this.constructor as typeof AbstractDocument).getLifecycleCallbackConfig();
+        const keys = config?.[type] || [];
+
+        for (const key of keys) {
+            await this[key]();
+        }
     }
 }

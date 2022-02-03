@@ -1,4 +1,3 @@
-import * as mongoose from 'mongoose';
 import { AbstractDocument } from '../../../core/document/abstract.document';
 import { document } from '../../../core/document/decorators/document';
 import { property } from '../../../core/document/decorators/property';
