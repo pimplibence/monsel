@@ -285,10 +285,42 @@ export abstract class AbstractDocument {
             const schemaOptions = this.getSchemaOptions();
 
             for (const key in schemaOptions) {
-                this._document[key] = this[key];
+                const schemaDef = schemaOptions[key];
+
+                /**
+                 * These lines are crucial!!!
+                 * - at this place, we can reassign properties to update to mongoose and it is necessary to use
+                 *   the original document, because only this way can the mongoose ensure the proper deep population flow
+                 * - we do not write own population flow, this is too much to implement and mongoose's solution is more than perfect for us
+                 */
+
+                /**
+                 * If the property is scalar, we just reassign the value to mongoose document to save into database
+                 */
+                if (!schemaDef.ref) {
+                    this._document[key] = this[key];
+                }
+
+                /**
+                 * Magic happens here
+                 * If it is a ref, we have to reassign the document property (and its proto) to mongoose, but we have to handle the array types
+                 */
+                if (schemaDef.ref) {
+                    if (!schemaDef.multi) {
+                        this._document[key] = this[key];
+                    }
+
+                    if (schemaDef.multi) {
+                        this._document[key] = this[key].map((item) => item._document);
+                    }
+                }
+                /**
+                 * After those steps, we gonna create the instances again in "loadValuesFromDocument" from the mongoose document protos
+                 */
             }
 
             this._document = await this._document.save();
+
             await this.loadValuesFromDocument();
             await this.executeLifecycleCallbackType('afterUpdate');
         }
@@ -298,10 +330,8 @@ export abstract class AbstractDocument {
 
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
         await this.executeLifecycleCallbackType('beforePopulate');
-
         await this._document.populate(options);
         await this.loadValuesFromDocument();
-
         await this.executeLifecycleCallbackType('afterPopulate');
     }
 

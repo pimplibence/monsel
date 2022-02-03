@@ -102,4 +102,39 @@ describe('populate', () => {
             }
         }
     });
+
+    it('deeply populated document should be populated after save', async () => {
+        const country = await CountryDocument.findOne<CountryDocument>({}, {
+            populate: [
+                {
+                    path: 'people',
+                    populate: [
+                        { path: 'children' }
+                    ]
+                }
+            ]
+        });
+
+        for (const peopleOfCountry of country.people) {
+            expect(peopleOfCountry)
+                .is.instanceof(PeopleDocument);
+
+            for (const child of peopleOfCountry.children) {
+                expect(child)
+                    .is.instanceof(PeopleDocument);
+            }
+        }
+
+        await country.save();
+
+        for (const peopleOfCountry of country.people) {
+            expect(peopleOfCountry)
+                .is.instanceof(PeopleDocument);
+
+            for (const child of peopleOfCountry.children) {
+                expect(child)
+                    .is.instanceof(PeopleDocument);
+            }
+        }
+    });
 });
