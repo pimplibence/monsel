@@ -150,5 +150,41 @@ describe('document as repository', async () => {
                     .and.is.not.eq(undefined);
             }
         });
+
+        it('updateOne', async () => {
+            const item = await CountryDocument.findOne();
+
+            expect(item)
+                .and.has.property('name')
+                .that
+                .is.not.eq('updated-2')
+                .and.is.not.eq(null)
+                .and.is.not.eq(undefined);
+
+            expect(item)
+                .and.has.property('code')
+                .that
+                .is.not.eq('updated-2')
+                .and.is.not.eq(null)
+                .and.is.not.eq(undefined);
+
+            await CountryDocument.updateOne({ _id: item._id }, { code: 'updated-2' });
+
+            const updated = await CountryDocument.findOne({ _id: item._id });
+
+            expect(updated)
+                .and.has.property('name')
+                .that
+                .is.not.eq('updated-2')
+                .and.is.not.eq(null)
+                .and.is.not.eq(undefined);
+
+            expect(updated)
+                .and.has.property('code')
+                .that
+                .is.eq('updated-2')
+                .and.is.not.eq(null)
+                .and.is.not.eq(undefined);
+        });
     });
 });

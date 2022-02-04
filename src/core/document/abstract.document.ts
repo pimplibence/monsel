@@ -2,7 +2,7 @@ import { ObjectId } from 'bson';
 import { AggregateOptions, UpdateResult } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { FilterQuery, PipelineStage, PopulateOptions, QueryOptions, UpdateQuery } from 'mongoose';
-import { DecoratorHelper } from '../libs/decorators/decorator.helper';
+import { StaticDocument } from './static.document';
 
 export interface PaginateOptions extends QueryOptions {
     page?: number;
@@ -18,122 +18,11 @@ export interface PaginateResponse<T extends AbstractDocument> {
     items: T[];
 }
 
-export abstract class AbstractDocument {
-    public _id: ObjectId | string;
-    public _document: mongoose.Document;
-    public _isInstance = true;
+export class AbstractDocument extends StaticDocument {
+    ////////////////////////////////////////
+    //// Core Section ///////////////////
+    //////////////////////////////////
 
-    constructor() {
-        this.hideProperty('_document');
-        this.hideProperty('_isInstance');
-    }
-
-    /**
-     * Returns with mongoose schema options
-     */
-    public static getSchemaOptions(): any {
-        return DecoratorHelper.getMetadata(this, 'SchemaOptions');
-    }
-
-    /**
-     * Returns with mongoose collection and model name
-     * - collection name and model name always will be same
-     */
-    public static getModelName(): string {
-        const options = this.getDocumentOptions();
-
-        if (!options?.collection) {
-            throw new Error('MissingCollectionName');
-        }
-
-        return options.collection;
-    }
-
-    /**
-     * Generates a mongoose schema
-     */
-    public static getSchema(): mongoose.Schema {
-        const documentOptions = this.getDocumentOptions();
-        const options = this.getSchemaOptions();
-        const schemaConstructorOptions = {};
-
-        for (const key in options) {
-            const item = options[key];
-
-            if (!!item.ref) {
-                const opts = {
-                    ...item.options,
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: item.ref.getModelName()
-                };
-
-                schemaConstructorOptions[key] = item.multi
-                    ? [opts]
-                    : opts;
-            }
-
-            if (!item.ref) {
-                schemaConstructorOptions[key] = item.options || { type: mongoose.Schema.Types.Mixed };
-            }
-        }
-
-        const schema = new mongoose.Schema(schemaConstructorOptions);
-
-        for (const index of documentOptions.indexes || []) {
-            schema.index(index.fields, index.options || {});
-        }
-
-        return schema;
-    }
-
-    /**
-     * Returns with @document decorator values
-     */
-    public static getDocumentOptions(): any {
-        return DecoratorHelper.getMetadata(this, 'DocumentOptions');
-    }
-
-    /**
-     * Set mongoose instance after connection
-     *
-     * @param mongooseInstance
-     */
-    public static setMongoose(mongooseInstance: mongoose.Mongoose) {
-        DecoratorHelper.setMetadata(this, 'Mongoose', mongooseInstance);
-    }
-
-    /**
-     * Returns with mongoose instance
-     * - this instance alredy contains models
-     */
-    public static getMongoose(): mongoose.Mongoose {
-        return DecoratorHelper.getMetadata(this, 'Mongoose');
-    }
-
-    /**
-     * Set mongoose model after connection
-     * @param model
-     */
-    public static setModel(model: mongoose.Model<any>) {
-        DecoratorHelper.setMetadata(this, 'Model', model);
-    }
-
-    /**
-     * Returns with mongoose model belongs to collection and document
-     */
-    public static getModel(): mongoose.Model<any> {
-        return DecoratorHelper.getMetadata(this, 'Model');
-    }
-
-    public static getLifecycleCallbackConfig(): any {
-        return DecoratorHelper.getMetadata(this, 'LifecycleCallbacks');
-    }
-
-    /**
-     * Makes a document instance from a mongoose document
-     *
-     * @param document
-     */
     public static async bootFromDocument<T extends AbstractDocument>(document: mongoose.Document): Promise<T> {
         const instance = new (this as any)();
         instance._document = document;
@@ -143,6 +32,66 @@ export abstract class AbstractDocument {
 
         return instance;
     }
+
+    private static async mapInstanceTree(instance: AbstractDocument, values: any) {
+        const schemaOptions = instance.getSchemaOptions();
+
+        for (const key in schemaOptions) {
+            const schemaOption = schemaOptions?.[key];
+            const ref: typeof AbstractDocument = schemaOption?.ref;
+            const multi = schemaOption?.multi;
+
+            if (!ref) {
+                continue;
+            }
+
+            if (multi) {
+                const mResult = [];
+
+                for (const index in values?.[key] || []) {
+                    mResult[index] = await AbstractDocument.mapInstanceTreeGetPropertyValue(values?.[key]?.[index], instance?.[key]?.[index], ref);
+                }
+
+                instance[key] = mResult;
+
+                // instance[key] = await Promise.all(values?.[key]?.map((item, index) => this.mapInstanceTreeGetPropertyValue(item, instance?.[key]?.[index], ref)));
+            } else {
+                instance[key] = await AbstractDocument.mapInstanceTreeGetPropertyValue(values?.[key], instance?.[key], ref);
+            }
+        }
+    }
+
+    private static async mapInstanceTreeGetPropertyValue(mongooseDocument: mongoose.Document, notMongooseDocument: AbstractDocument, ref: typeof AbstractDocument) {
+        if (!mongooseDocument) {
+            return null;
+        }
+
+        // has _isInstance property -> Already mapped
+        if (notMongooseDocument?._isInstance) {
+            return mongooseDocument;
+        }
+
+        // string -> Not populated
+        if (typeof mongooseDocument === 'string') {
+            return mongooseDocument;
+        }
+
+        // instanceof ObjectId -> Not populated and it`s a simple ObjectId
+        if (mongooseDocument instanceof ObjectId) {
+            return mongooseDocument;
+        }
+
+        // Its a null -> Nothing to map
+        if (!mongooseDocument) {
+            return mongooseDocument;
+        }
+
+        return ref.bootFromDocument(mongooseDocument);
+    }
+
+    ////////////////////////////////////////
+    //// Repository Section /////////////
+    //////////////////////////////////
 
     public static async count<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<number> {
         const model = this.getModel();
@@ -251,6 +200,11 @@ export abstract class AbstractDocument {
         return items;
     }
 
+    public static async syncIndexes() {
+        const model = this.getModel();
+        return model.syncIndexes();
+    }
+
     // Model.findByIdAndDelete()
     // Model.findByIdAndRemove()
     // Model.findByIdAndUpdate()
@@ -259,10 +213,9 @@ export abstract class AbstractDocument {
     // Model.findOneAndReplace()
     // Model.findOneAndUpdate()
 
-    public static async syncIndexes() {
-        const model = this.getModel();
-        return model.syncIndexes();
-    }
+    ////////////////////////////////////////
+    //// Active Record Section //////////
+    //////////////////////////////////
 
     public async save(options?: QueryOptions): Promise<this> {
         const model = this.getModel();
@@ -335,23 +288,6 @@ export abstract class AbstractDocument {
         await this.executeLifecycleCallbackType('afterPopulate');
     }
 
-    public async syncIndexes() {
-        const model = this.getModel();
-        return model.syncIndexes();
-    }
-
-    private getSchemaOptions(): any {
-        return DecoratorHelper.getMetadata(this.constructor, 'SchemaOptions');
-    }
-
-    private getMongoose(): mongoose.Mongoose {
-        return DecoratorHelper.getMetadata(this.constructor, 'Mongoose');
-    }
-
-    private getModel(): mongoose.Model<any> {
-        return DecoratorHelper.getMetadata(this.constructor, 'Model');
-    }
-
     /**
      * Crucial method!
      * This method loads and build the entire instance of document from mongoose document
@@ -371,85 +307,12 @@ export abstract class AbstractDocument {
 
         this._id = this._document._id;
 
-        await this.mapInstanceTree(this, this._document);
+        await AbstractDocument.mapInstanceTree(this, this._document);
     }
 
-    /**
-     * Helper function to hide properties from instance proto
-     *
-     * @param property
-     * @protected
-     */
-    private hideProperty(property: string) {
-        Object.defineProperty(this, property, {
-            enumerable: false,
-            configurable: true,
-            writable: true,
-        });
-    }
-
-    /**
-     * This methods maps recursively the raw document and build the populated instances if it is possible
-     *
-     * @param instance
-     * @param values
-     * @private
-     */
-    private async mapInstanceTree(instance: AbstractDocument, values: any) {
-        const schemaOptions = instance.getSchemaOptions();
-
-        for (const key in schemaOptions) {
-            const schemaOption = schemaOptions?.[key];
-            const ref: typeof AbstractDocument = schemaOption?.ref;
-            const multi = schemaOption?.multi;
-
-            if (!ref) {
-                continue;
-            }
-
-            if (multi) {
-                const mResult = [];
-
-                for (const index in values?.[key] || []) {
-                    mResult[index] = await this.mapInstanceTreeGetPropertyValue(values?.[key]?.[index], instance?.[key]?.[index], ref);
-                }
-
-                instance[key] = mResult;
-
-                // instance[key] = await Promise.all(values?.[key]?.map((item, index) => this.mapInstanceTreeGetPropertyValue(item, instance?.[key]?.[index], ref)));
-            } else {
-                instance[key] = await this.mapInstanceTreeGetPropertyValue(values?.[key], instance?.[key], ref);
-            }
-        }
-    }
-
-    private async mapInstanceTreeGetPropertyValue(mongooseDocument: mongoose.Document, notMongooseDocument: AbstractDocument, ref: typeof AbstractDocument) {
-        if (!mongooseDocument) {
-            return null;
-        }
-
-        // has _isInstance property -> Already mapped
-        if (notMongooseDocument?._isInstance) {
-            return mongooseDocument;
-        }
-
-        // string -> Not populated
-        if (typeof mongooseDocument === 'string') {
-            return mongooseDocument;
-        }
-
-        // instanceof ObjectId -> Not populated and it`s a simple ObjectId
-        if (mongooseDocument instanceof ObjectId) {
-            return mongooseDocument;
-        }
-
-        // Its a null -> Nothing to map
-        if (!mongooseDocument) {
-            return mongooseDocument;
-        }
-
-        return ref.bootFromDocument(mongooseDocument);
-    }
+    ////////////////////////////////////////
+    //// Lifecycle Callback Section /////
+    //////////////////////////////////
 
     private async executeLifecycleCallbackType(type: string) {
         const config = (this.constructor as typeof AbstractDocument).getLifecycleCallbackConfig();
