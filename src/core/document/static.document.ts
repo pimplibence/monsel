@@ -22,10 +22,10 @@ export class StaticDocument {
     }
 
     /**
-     * Returns with mongoose schema options
+     * Returns with mongoose schema config
      */
-    public static getSchemaOptions(): any {
-        return DecoratorHelper.getMetadata(this, 'SchemaOptions');
+    public static getSchemaConfig(): any {
+        return DecoratorHelper.getMetadata(this, 'SchemaConfig') || {};
     }
 
     /**
@@ -47,11 +47,11 @@ export class StaticDocument {
      */
     public static getSchema(): mongoose.Schema {
         const documentOptions = this.getDocumentOptions();
-        const options = this.getSchemaOptions();
-        const schemaConstructorOptions = {};
+        const schemaConfig = this.getSchemaConfig();
+        const schemaConstructorConfig = {};
 
-        for (const key in options) {
-            const item = options[key];
+        for (const key in schemaConfig) {
+            const item = schemaConfig[key];
 
             if (!!item.ref) {
                 const opts = {
@@ -60,17 +60,17 @@ export class StaticDocument {
                     ref: item.ref.getModelName()
                 };
 
-                schemaConstructorOptions[key] = item.multi
+                schemaConstructorConfig[key] = item.multi
                     ? [opts]
                     : opts;
             }
 
             if (!item.ref) {
-                schemaConstructorOptions[key] = item.options || { type: mongoose.Schema.Types.Mixed };
+                schemaConstructorConfig[key] = item.options || { type: mongoose.Schema.Types.Mixed };
             }
         }
 
-        const schema = new mongoose.Schema(schemaConstructorOptions);
+        const schema = new mongoose.Schema(schemaConstructorConfig, documentOptions.schemaOptions || {});
 
         for (const index of documentOptions.indexes || []) {
             schema.index(index.fields, index.options || {});
@@ -136,8 +136,8 @@ export class StaticDocument {
         });
     }
 
-    protected getSchemaOptions(): any {
-        return DecoratorHelper.getMetadata(this.constructor, 'SchemaOptions');
+    protected getSchemaConfig(): any {
+        return DecoratorHelper.getMetadata(this.constructor, 'SchemaConfig') || {};
     }
 
     protected getMongoose(): mongoose.Mongoose {

@@ -34,10 +34,10 @@ export class AbstractDocument extends StaticDocument {
     }
 
     private static async mapInstanceTree(instance: AbstractDocument, values: any) {
-        const schemaOptions = instance.getSchemaOptions();
+        const schemaConfig = instance.getSchemaConfig();
 
-        for (const key in schemaOptions) {
-            const schemaOption = schemaOptions?.[key];
+        for (const key in schemaConfig) {
+            const schemaOption = schemaConfig?.[key];
             const ref: typeof AbstractDocument = schemaOption?.ref;
             const multi = schemaOption?.multi;
 
@@ -235,10 +235,10 @@ export class AbstractDocument extends StaticDocument {
         if (!isCreate) {
             await this.executeLifecycleCallbackType('beforeUpdate');
 
-            const schemaOptions = this.getSchemaOptions();
+            const schemaConfig = this.getSchemaConfig();
 
-            for (const key in schemaOptions) {
-                const schemaDef = schemaOptions[key];
+            for (const key in schemaConfig) {
+                const schemaDef = schemaConfig[key];
 
                 /**
                  * These lines are crucial!!!
@@ -299,9 +299,9 @@ export class AbstractDocument extends StaticDocument {
             return;
         }
 
-        const schemaOptions = this.getSchemaOptions();
+        const schemaConfig = this.getSchemaConfig();
 
-        for (const key in schemaOptions) {
+        for (const key in schemaConfig) {
             this[key] = this._document[key];
         }
 

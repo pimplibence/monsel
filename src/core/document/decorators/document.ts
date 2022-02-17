@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash';
+import * as mongoose from 'mongoose';
 import { IndexDefinition, IndexOptions } from 'mongoose';
 import { DecoratorHelper } from '../../libs/decorators/decorator.helper';
 import { AbstractDocument } from '../abstract.document';
@@ -11,6 +12,7 @@ interface Index {
 interface DocumentOptions {
     collection: string;
     indexes?: Index[];
+    schemaOptions?: mongoose.SchemaOptions;
 }
 
 export const document = (options: DocumentOptions) => {
@@ -28,18 +30,27 @@ export const document = (options: DocumentOptions) => {
             ...(options?.indexes || [])
         ];
 
+        options.schemaOptions = {
+            ...(parentOptions?.schemaOptions || {}),
+            ...(options?.schemaOptions || {})
+
+            // TODO -> Merge shardKey
+            // TODO -> Merge collation
+            // TODO -> Investigation to explain which fields has to be handled here
+        };
+
         DecoratorHelper.setMetadata(target, 'DocumentOptions', cloneDeep(options));
 
         /**
-         * Schema Options
+         * Schema Config
+         *
+         * You have to answer -> How to merge parent config into current config
          */
+        const parentSchemaConfig = DecoratorHelper.getParentMetadata(target, 'SchemaConfig');
+        const currentSchemaConfig = DecoratorHelper.getMetadata(target, 'SchemaConfig');
+        const schemaConfig = { ...parentSchemaConfig, ...currentSchemaConfig };
 
-        const parentSchema = DecoratorHelper.getParentMetadata(target, 'SchemaOptions');
-        const currentSchema = DecoratorHelper.getMetadata(target, 'SchemaOptions');
-
-        const schema = { ...parentSchema, ...currentSchema };
-
-        DecoratorHelper.setMetadata(target, 'SchemaOptions', schema);
+        DecoratorHelper.setMetadata(target, 'SchemaConfig', schemaConfig);
 
         /**
          * Lifecycle Callbacks
