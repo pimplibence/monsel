@@ -205,6 +205,11 @@ export class AbstractDocument extends StaticDocument {
         return model.syncIndexes();
     }
 
+    public static async ensureIndexes() {
+        const model = this.getModel();
+        return model.ensureIndexes();
+    }
+
     // Model.findByIdAndDelete()
     // Model.findByIdAndRemove()
     // Model.findByIdAndUpdate()

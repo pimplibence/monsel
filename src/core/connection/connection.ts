@@ -33,6 +33,7 @@ export class Connection {
             document.setModel(model);
             document.setMongoose(this.mongoose);
 
+            await document.ensureIndexes();
             await document.syncIndexes();
         }
     }
