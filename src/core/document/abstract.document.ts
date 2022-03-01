@@ -182,6 +182,14 @@ export class AbstractDocument extends StaticDocument {
         return model.deleteOne(filter, options);
     }
 
+    // Model.findByIdAndDelete()
+    // Model.findByIdAndRemove()
+    // Model.findByIdAndUpdate()
+    // Model.findOneAndDelete()
+    // Model.findOneAndRemove()
+    // Model.findOneAndReplace()
+    // Model.findOneAndUpdate()
+
     public static async aggregate<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<any[]> {
         const model = this.getModel();
 
@@ -205,18 +213,10 @@ export class AbstractDocument extends StaticDocument {
         return model.syncIndexes();
     }
 
-    public static async ensureIndexes() {
+    public static async createIndexes() {
         const model = this.getModel();
-        return model.ensureIndexes();
+        return model.createIndexes();
     }
-
-    // Model.findByIdAndDelete()
-    // Model.findByIdAndRemove()
-    // Model.findByIdAndUpdate()
-    // Model.findOneAndDelete()
-    // Model.findOneAndRemove()
-    // Model.findOneAndReplace()
-    // Model.findOneAndUpdate()
 
     ////////////////////////////////////////
     //// Active Record Section //////////

@@ -17,10 +17,26 @@ export class PeopleDocument extends HumanDocument {
     @refs(() => PeopleDocument)
     public siblings: PeopleDocument[] = [];
 
+    @property()
+    public createdAt: Date;
+
+    @property()
+    public updatedAt: Date;
+
     @beforeCreate()
     @beforeUpdate()
     @afterLoad()
     public bbbbb() {
         this.name = Math.random().toString();
+    }
+
+    @beforeCreate()
+    public initCreatedAt() {
+        this.createdAt = new Date();
+    }
+
+    @beforeUpdate()
+    public initUpdatedAt() {
+        this.updatedAt = new Date();
     }
 }

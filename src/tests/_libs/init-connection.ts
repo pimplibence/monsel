@@ -18,7 +18,7 @@ export const initConnection = () => {
     before(async () => {
         await connection.connect();
         await connection.syncIndexes();
-        await connection.ensureIndexes();
+        await connection.createIndexes();
     });
 
     after(async () => {

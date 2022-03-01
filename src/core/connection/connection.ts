@@ -44,10 +44,10 @@ export class Connection {
         console.log(`Database initialized (duration: ${now() - startInitialize}µs)`);
     }
 
-    public async ensureIndexes() {
+    public async createIndexes() {
         for (const document of this.options.documents) {
             const start = now();
-            await document.ensureIndexes();
+            await document.createIndexes();
             const duration = now() - start;
             console.log(`Index ensured (document: ${document.getModelName()}, duration: ${duration}µs)`);
         }
