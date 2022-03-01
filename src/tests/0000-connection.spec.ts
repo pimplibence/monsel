@@ -1,14 +1,13 @@
 import * as assert from "assert";
-import { initConnection } from './_libs/init-connection';
+import { connectDatabase, disconnectDatabase, resetDatabase } from './libs/connection-helper';
 
-describe('connection', () => {
-    const connection = initConnection();
+describe('Hello World!', async () => {
+    beforeEach(async () => connectDatabase());
+    afterEach(async () => resetDatabase());
+    afterEach(async () => disconnectDatabase());
 
-    it('communicate with mongo', async () => {
-        const stats = await connection.connection.stats();
-
-        assert.equal(stats.db, connection.database);
-        assert.equal(!!stats.ok, true);
+    it('Case #1', async () => {
+        assert.equal(1, 1);
     });
 
 });

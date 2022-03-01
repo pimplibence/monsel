@@ -6,6 +6,7 @@ interface ConnectionOptions {
     uri: string;
     options?: mongoose.ConnectOptions;
     documents: Array<typeof AbstractDocument>;
+    debug?: boolean;
 }
 
 export class Connection {
@@ -24,7 +25,7 @@ export class Connection {
             this.options.options
         );
 
-        console.log(`Connected to database (duration: ${now() - start}µs)`);
+        this._log(`Connected to database (duration: ${now() - start}µs)`);
 
         const startInitialize = now();
 
@@ -41,7 +42,7 @@ export class Connection {
             document.setMongoose(this.mongoose);
         }
 
-        console.log(`Database initialized (duration: ${now() - startInitialize}µs)`);
+        this._log(`Database initialized (duration: ${now() - startInitialize}µs)`);
     }
 
     public async createIndexes() {
@@ -49,7 +50,8 @@ export class Connection {
             const start = now();
             await document.createIndexes();
             const duration = now() - start;
-            console.log(`Index ensured (document: ${document.getModelName()}, duration: ${duration}µs)`);
+
+            this._log(`Index ensured (document: ${document.getModelName()}, duration: ${duration}µs)`);
         }
     }
 
@@ -58,7 +60,8 @@ export class Connection {
             const start = now();
             await document.syncIndexes();
             const duration = now() - start;
-            console.log(`Index synced  (document: ${document.getModelName()}, duration: ${duration}µs)`);
+
+            this._log(`Index synced  (document: ${document.getModelName()}, duration: ${duration}µs)`);
         }
     }
 
@@ -72,5 +75,13 @@ export class Connection {
 
     public async dropDatabase() {
         return this.mongoose.connection.db.dropDatabase();
+    }
+
+    private _log(message: any) {
+        if (!this.options.debug) {
+            return;
+        }
+
+        console.log(message);
     }
 }
