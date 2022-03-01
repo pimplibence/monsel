@@ -45,6 +45,10 @@ export class Connection {
         this._log(`Database initialized (duration: ${now() - startInitialize}µs)`);
     }
 
+    public async disconnect() {
+        await this.mongoose.disconnect();
+    }
+
     public async createIndexes() {
         for (const document of this.options.documents) {
             const start = now();
@@ -63,18 +67,6 @@ export class Connection {
 
             this._log(`Index synced  (document: ${document.getModelName()}, duration: ${duration}µs)`);
         }
-    }
-
-    public async disconnect() {
-        await this.mongoose.disconnect();
-    }
-
-    public async stats() {
-        return this.mongoose.connection.db.stats();
-    }
-
-    public async dropDatabase() {
-        return this.mongoose.connection.db.dropDatabase();
     }
 
     private _log(message: any) {

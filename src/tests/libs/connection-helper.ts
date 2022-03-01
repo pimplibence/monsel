@@ -1,14 +1,15 @@
 import { Connection } from '../../core/connection/connection';
+import { HumanDocument } from '../documents/human.document';
 
 global.__connection = null;
 
-export const connectDatabase = async () => {
-    const connectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://root:abcd1234@localhost:51301/tests?authSource=admin';
+export const connectDatabase = async (documents: Array<typeof HumanDocument>) => {
+    const connectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost:27017/tests';
 
     global.__connection = new Connection({
         uri: connectionString,
-        documents: [],
-        debug: false
+        documents: documents,
+        debug: true
     });
 
     await global.__connection.connect();
@@ -28,6 +29,6 @@ export const disconnectDatabase = async () => {
 export const resetDatabase = async () => {
     const connection = getConnection();
 
-    await connection.dropDatabase();
+    await connection.mongoose.connection.db.dropDatabase();
     await disconnectDatabase();
 };
