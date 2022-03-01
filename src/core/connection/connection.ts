@@ -1,3 +1,4 @@
+import { now } from 'microtime';
 import * as mongoose from 'mongoose';
 import { AbstractDocument } from "../document/abstract.document";
 
@@ -16,10 +17,16 @@ export class Connection {
     }
 
     public async connect() {
+        const start = now();
+
         this.mongoose = await mongoose.connect(
             this.options.uri,
             this.options.options
         );
+
+        console.log(`Connected to database (duration: ${now() - start}µs)`);
+
+        const startInitialize = now();
 
         for (const document of this.options.documents) {
             const schema = document.getSchema();
@@ -32,9 +39,26 @@ export class Connection {
 
             document.setModel(model);
             document.setMongoose(this.mongoose);
+        }
 
+        console.log(`Database initialized (duration: ${now() - startInitialize}µs)`);
+    }
+
+    public async ensureIndexes() {
+        for (const document of this.options.documents) {
+            const start = now();
             await document.ensureIndexes();
+            const duration = now() - start;
+            console.log(`Index ensured (document: ${document.getModelName()}, duration: ${duration}µs)`);
+        }
+    }
+
+    public async syncIndexes() {
+        for (const document of this.options.documents) {
+            const start = now();
             await document.syncIndexes();
+            const duration = now() - start;
+            console.log(`Index synced  (document: ${document.getModelName()}, duration: ${duration}µs)`);
         }
     }
 
