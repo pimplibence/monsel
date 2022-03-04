@@ -1,9 +1,9 @@
 import { Connection } from '../../core/connection/connection';
-import { HumanDocument } from '../documents/human.document';
+import { AbstractDocument } from '../../core/document/abstract.document';
 
 global.__connection = null;
 
-export const connectDatabase = async (documents: Array<typeof HumanDocument>) => {
+export const connectDatabase = async (documents: Array<typeof AbstractDocument>) => {
     const connectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost:27017/tests';
 
     global.__connection = new Connection({

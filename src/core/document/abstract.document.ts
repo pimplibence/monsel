@@ -93,10 +93,16 @@ export class AbstractDocument extends StaticDocument {
     //// Repository Section /////////////
     //////////////////////////////////
 
-    public static async count<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<number> {
+    public static async count<T extends AbstractDocument>(filter: FilterQuery<T> = {}): Promise<number> {
         const model = this.getModel();
 
         return model.count(filter);
+    }
+
+    public static async countDocuments<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<number> {
+        const model = this.getModel();
+
+        return model.countDocuments(filter, options);
     }
 
     public static async findMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {

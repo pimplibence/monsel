@@ -2,8 +2,12 @@ import { expect } from 'chai';
 import { HumanDocument } from './documents/human.document';
 import { connectDatabase, disconnectDatabase, getConnection, resetDatabase } from './libs/connection-helper';
 
+const documents = [
+    HumanDocument
+];
+
 describe('Connection', async () => {
-    before(async () => connectDatabase([HumanDocument]));
+    before(async () => connectDatabase(documents));
     after(async () => resetDatabase());
     after(async () => disconnectDatabase());
 
@@ -23,6 +27,13 @@ describe('Connection', async () => {
         }
 
         const stats = await connection.mongoose.connection.db.stats();
+
         expect(stats.ok).is.equal(1);
+    });
+
+    it('check connection on document', async () => {
+        const count = await HumanDocument.count();
+
+        console.log(count);
     });
 });

@@ -10,12 +10,12 @@ interface Index {
 }
 
 interface DocumentOptions {
-    collection: string;
+    collection?: string;
     indexes?: Index[];
     schemaOptions?: mongoose.SchemaOptions;
 }
 
-export const document = (options: DocumentOptions) => {
+export const document = (options: DocumentOptions = {}) => {
     return (target: typeof AbstractDocument): any => {
         /**
          * Document Options

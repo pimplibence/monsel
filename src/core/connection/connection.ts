@@ -33,6 +33,10 @@ export class Connection {
             const schema = document.getSchema();
             const name = document.getModelName();
 
+            if (!name) {
+                throw new Error('UnableToInitializeADocumentWithoutCollectionName');
+            }
+
             const model = this.mongoose.model(name, schema, name, {
                 connection: this.mongoose.connection,
                 overwriteModels: true
