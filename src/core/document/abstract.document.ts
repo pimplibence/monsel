@@ -275,7 +275,9 @@ export class AbstractDocument extends StaticDocument {
                     }
 
                     if (schemaDef.multi) {
-                        this._document[key] = this[key].map((item) => item._document);
+                        this._document[key] = this[key]
+                            .map((item) => item?._document || item)
+                            .filter((item) => !!item);
                     }
                 }
                 /**
