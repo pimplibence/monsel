@@ -1,8 +1,16 @@
 import { ObjectId } from 'bson';
+import { ValidatorOptions } from 'class-validator/types/validation/ValidatorOptions';
 import { AggregateOptions, UpdateResult } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { FilterQuery, PipelineStage, PopulateOptions, QueryOptions, UpdateQuery } from 'mongoose';
 import { StaticDocument } from './static.document';
+
+type LifecycleCallbackOptionsValidatorOptions = { skipValidation?: boolean } & ValidatorOptions;
+
+export type LifecycleCallbackOptions = {
+    saveOptions?: QueryOptions | undefined;
+    validatorOptions?: LifecycleCallbackOptionsValidatorOptions | undefined;
+};
 
 export interface PaginateOptions extends QueryOptions {
     page?: number;
@@ -28,7 +36,7 @@ export class AbstractDocument extends StaticDocument {
         instance._document = document;
 
         await instance.loadValuesFromDocument();
-        await instance.executeLifecycleCallbackType('afterLoad');
+        await instance.executeLifecycleCallbackType('afterLoad', null);
 
         return instance;
     }
@@ -228,23 +236,25 @@ export class AbstractDocument extends StaticDocument {
     //// Active Record Section //////////
     //////////////////////////////////
 
-    public async save(options?: QueryOptions): Promise<this> {
+    public async save(options?: QueryOptions, validatorOptions?: LifecycleCallbackOptionsValidatorOptions): Promise<this> {
+        const lcCallbackOptions: LifecycleCallbackOptions = { saveOptions: options, validatorOptions: validatorOptions };
         const model = this.getModel();
 
         const isCreate = !this._document?._id;
 
         if (isCreate) {
-            await this.executeLifecycleCallbackType('beforeCreate');
+            await this.executeLifecycleCallbackType('beforeCreate', lcCallbackOptions);
+            await this.executeLifecycleCallbackType('afterBeforeCreate', lcCallbackOptions);
 
             const instance = new model(this);
             this._document = await instance.save(options);
 
             await this.loadValuesFromDocument();
-            await this.executeLifecycleCallbackType('afterCreate');
         }
 
         if (!isCreate) {
-            await this.executeLifecycleCallbackType('beforeUpdate');
+            await this.executeLifecycleCallbackType('beforeUpdate', lcCallbackOptions);
+            await this.executeLifecycleCallbackType('afterBeforeUpdate', lcCallbackOptions);
 
             const schemaConfig = this.getSchemaConfig();
 
@@ -285,20 +295,17 @@ export class AbstractDocument extends StaticDocument {
                  */
             }
 
-            this._document = await this._document.save();
+            this._document = await this._document.save(options);
 
             await this.loadValuesFromDocument();
-            await this.executeLifecycleCallbackType('afterUpdate');
         }
 
         return this;
     }
 
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
-        await this.executeLifecycleCallbackType('beforePopulate');
         await this._document.populate(options);
         await this.loadValuesFromDocument();
-        await this.executeLifecycleCallbackType('afterPopulate');
     }
 
     /**
@@ -327,12 +334,12 @@ export class AbstractDocument extends StaticDocument {
     //// Lifecycle Callback Section /////
     //////////////////////////////////
 
-    private async executeLifecycleCallbackType(type: string) {
+    private async executeLifecycleCallbackType(type: string, options: LifecycleCallbackOptions | null) {
         const config = (this.constructor as typeof AbstractDocument).getLifecycleCallbackConfig();
         const keys = config?.[type] || [];
 
         for (const key of keys) {
-            await this[key]();
+            await this[key](options);
         }
     }
 }

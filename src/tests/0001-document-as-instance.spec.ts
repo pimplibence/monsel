@@ -12,26 +12,30 @@ describe('Document as instance', async () => {
     after(async () => disconnectDatabase());
 
     it('create', async () => {
-        const instance = new HumanDocument();
+        try {
+            const instance = new HumanDocument();
 
-        instance.name = 'John Doe';
-        instance.age = 28;
+            instance.name = 'John Doe';
+            instance.age = 28;
 
-        expect(instance.createdAt).is.equals(undefined);
-        expect(instance.createdAt).is.equals(undefined);
+            expect(instance.createdAt).is.equals(undefined);
+            expect(instance.createdAt).is.equals(undefined);
 
-        await instance.save();
+            await instance.save(null, { skipValidation: false });
 
-        expect(instance.name).is.equals('John Doe');
-        expect(instance.age).is.equals(28);
-        expect(instance.createdAt).is.instanceof(Date);
-        expect(instance.updatedAt).is.instanceof(Date);
+            expect(instance.name).is.equals('John Doe');
+            expect(instance.age).is.equals(28);
+            expect(instance.createdAt).is.instanceof(Date);
+            expect(instance.updatedAt).is.instanceof(Date);
 
-        const fetched = await HumanDocument.findOne<HumanDocument>();
+            const fetched = await HumanDocument.findOne<HumanDocument>();
 
-        expect(instance.name).is.equals(fetched.name);
-        expect(instance.age).is.equals(fetched.age);
-        expect(instance.createdAt.toString()).is.equals(fetched.createdAt.toString());
-        expect(instance.updatedAt.toString()).is.equals(fetched.updatedAt.toString());
+            expect(instance.name).is.equals(fetched.name);
+            expect(instance.age).is.equals(fetched.age);
+            expect(instance.createdAt.toString()).is.equals(fetched.createdAt.toString());
+            expect(instance.updatedAt.toString()).is.equals(fetched.updatedAt.toString());
+        } catch (e) {
+            console.log(e.errors);
+        }
     });
 });

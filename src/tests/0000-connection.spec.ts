@@ -28,12 +28,12 @@ describe('Connection', async () => {
 
         const stats = await connection.mongoose.connection.db.stats();
 
-        expect(stats.ok).is.equal(1);
+        expect(stats.ok).is.equals(1);
     });
 
     it('check connection on document', async () => {
         const count = await HumanDocument.count();
 
-        console.log(count);
+        expect(count).is.equals(0);
     });
 });

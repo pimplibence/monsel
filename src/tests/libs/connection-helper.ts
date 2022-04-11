@@ -9,7 +9,7 @@ export const connectDatabase = async (documents: Array<typeof AbstractDocument>)
     global.__connection = new Connection({
         uri: connectionString,
         documents: documents,
-        debug: true
+        debug: false
     });
 
     await global.__connection.connect();
