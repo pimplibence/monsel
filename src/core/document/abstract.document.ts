@@ -101,12 +101,6 @@ export class AbstractDocument extends StaticDocument {
     //// Repository Section /////////////
     //////////////////////////////////
 
-    public static async count<T extends AbstractDocument>(filter: FilterQuery<T> = {}): Promise<number> {
-        const model = this.getModel();
-
-        return model.count(filter);
-    }
-
     public static async countDocuments<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<number> {
         const model = this.getModel();
 
@@ -154,7 +148,7 @@ export class AbstractDocument extends StaticDocument {
         const limit = options?.limit || 0;
         const skip = page * limit;
 
-        const total = await this.count(filter);
+        const total = await this.countDocuments(filter, options);
 
         const items = await this.findMany<T>(filter, {
             ...options,

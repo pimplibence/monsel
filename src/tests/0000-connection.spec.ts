@@ -32,7 +32,7 @@ describe('Connection', async () => {
     });
 
     it('check connection on document', async () => {
-        const count = await HumanDocument.count();
+        const count = await HumanDocument.countDocuments();
 
         expect(count).is.equals(0);
     });
