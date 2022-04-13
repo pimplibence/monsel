@@ -229,7 +229,16 @@ export class AbstractDocument extends StaticDocument {
     //// Active Record Section //////////
     //////////////////////////////////
 
+    protected _session: mongoose.ClientSession | undefined;
+
+    constructor() {
+        super();
+
+        this.hideProperty('_session');
+    }
+
     public async save(options?: QueryOptions, validatorOptions?: SaveValidatorOptions): Promise<this> {
+        this._session = options?.session;
         const model = this.getModel();
 
         const isCreate = !this._document?._id;
@@ -298,6 +307,10 @@ export class AbstractDocument extends StaticDocument {
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
         await this._document.populate(options);
         await this.loadValuesFromDocument();
+    }
+
+    protected $session(): mongoose.ClientSession | undefined {
+        return this._document?.$session() || this._session;
     }
 
     /**
