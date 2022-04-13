@@ -19,8 +19,3 @@ export const afterCreate = () => lifecycleCallback('afterCreate');
 export const beforeUpdate = () => lifecycleCallback('beforeUpdate');
 export const afterUpdate = () => lifecycleCallback('afterUpdate');
 export const afterLoad = () => lifecycleCallback('afterLoad');
-export const beforePopulate = () => lifecycleCallback('beforePopulate');
-export const afterPopulate = () => lifecycleCallback('afterPopulate');
-
-export const afterBeforeCreate = () => lifecycleCallback('afterBeforeCreate');
-export const afterBeforeUpdate = () => lifecycleCallback('afterBeforeUpdate');
