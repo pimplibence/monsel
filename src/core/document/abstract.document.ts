@@ -103,13 +103,13 @@ export class AbstractDocument extends StaticDocument {
     public static async countDocuments<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<number> {
         const model = this.getModel();
 
-        return model.countDocuments(filter, options);
+        return model.countDocuments(filter, { ...options });
     }
 
     public static async findMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
         const model = this.getModel();
 
-        const documents = await model.find(filter, null, options);
+        const documents = await model.find(filter, null, { ...options });
 
         for (const index in documents) {
             documents[index] = await this.bootFromDocument<T>(documents[index]);
@@ -121,7 +121,7 @@ export class AbstractDocument extends StaticDocument {
     public static async findOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T | null> {
         const model = this.getModel();
 
-        const document = await model.findOne(filter, null, options);
+        const document = await model.findOne(filter, null, { ...options });
 
         if (!document) {
             return null;
@@ -133,7 +133,7 @@ export class AbstractDocument extends StaticDocument {
     public static async findById<T extends AbstractDocument>(id: any, options?: QueryOptions | null): Promise<T | null> {
         const model = this.getModel();
 
-        const document = await model.findById(id, null, options);
+        const document = await model.findById(id, null, { ...options });
 
         if (!document) {
             return null;
@@ -147,13 +147,9 @@ export class AbstractDocument extends StaticDocument {
         const limit = options?.limit || 0;
         const skip = page * limit;
 
-        const total = await this.countDocuments(filter, options);
+        const total = await this.countDocuments(filter, { ...options });
 
-        const items = await this.findMany<T>(filter, {
-            ...options,
-            skip: skip,
-            limit: limit
-        });
+        const items = await this.findMany<T>(filter, { ...options, skip, limit });
 
         return {
             total: total,
@@ -168,25 +164,25 @@ export class AbstractDocument extends StaticDocument {
     public static async updateMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, update: UpdateQuery<T> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
         const model = this.getModel();
 
-        return model.updateMany(filter, update, options);
+        return model.updateMany(filter, update, { ...options });
     }
 
     public static async updateOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, update: UpdateQuery<T> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
         const model = this.getModel();
 
-        return model.updateOne(filter, update, options);
+        return model.updateOne(filter, update, { ...options });
     }
 
     public static async deleteMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<any> {
         const model = this.getModel();
 
-        return model.deleteMany(filter, options);
+        return model.deleteMany(filter, { ...options });
     }
 
     public static async deleteOne<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<any> {
         const model = this.getModel();
 
-        return model.deleteOne(filter, options);
+        return model.deleteOne(filter, { ...options });
     }
 
     // Model.findByIdAndDelete()
@@ -200,13 +196,13 @@ export class AbstractDocument extends StaticDocument {
     public static async aggregate<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<any[]> {
         const model = this.getModel();
 
-        return model.aggregate<mongoose.Document>(pipeline, options);
+        return model.aggregate<mongoose.Document>(pipeline, { ...options });
     }
 
     public static async aggregateAndMapResults<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<T[]> {
         const model = this.getModel();
 
-        const items = await model.aggregate<any>(pipeline, options);
+        const items = await model.aggregate<any>(pipeline, { ...options });
 
         for (const index in items) {
             items[index] = await this.bootFromDocument<T>(items[index]);
@@ -237,7 +233,7 @@ export class AbstractDocument extends StaticDocument {
         this.hideProperty('_session');
     }
 
-    public async save(options?: QueryOptions, validatorOptions?: SaveValidatorOptions): Promise<this> {
+    public async save(options?: mongoose.SaveOptions, validatorOptions?: SaveValidatorOptions): Promise<this> {
         this._session = options?.session;
         const model = this.getModel();
 
@@ -248,7 +244,7 @@ export class AbstractDocument extends StaticDocument {
             await this.runClassValidatorValidators(validatorOptions);
 
             const instance = new model(this);
-            this._document = await instance.save(options);
+            this._document = await instance.save({ ...options });
 
             await this.loadValuesFromDocument();
         }
@@ -296,7 +292,7 @@ export class AbstractDocument extends StaticDocument {
                  */
             }
 
-            this._document = await this._document.save(options);
+            this._document = await this._document.save({ ...options });
 
             await this.loadValuesFromDocument();
         }
@@ -305,7 +301,7 @@ export class AbstractDocument extends StaticDocument {
     }
 
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
-        await this._document.populate(options);
+        await this._document.populate({ ...options });
         await this.loadValuesFromDocument();
     }
 
@@ -355,7 +351,7 @@ export class AbstractDocument extends StaticDocument {
             return;
         }
 
-        const results = await validate(this, options || {});
+        const results = await validate(this, { ...options });
 
         if (!results.length) {
             return;
