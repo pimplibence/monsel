@@ -1,4 +1,4 @@
-import { IsString, Max, Min } from 'class-validator';
+import { IsString, Min } from 'class-validator';
 import { document } from '../../core/document/decorators/document';
 import { property } from '../../core/document/decorators/property';
 import { BaseDocument } from '../../extra/base.document';
@@ -12,8 +12,7 @@ export class HumanDocument extends BaseDocument {
     @property()
     public name: string;
 
-    @Min(30)
-    @Max(40)
+    @Min(0)
     @property()
     public age: number;
 }

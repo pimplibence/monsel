@@ -18,7 +18,6 @@ export interface PaginateOptions extends QueryOptions {
 
 export interface PaginateResponse<T extends AbstractDocument> {
     total: number;
-    current: number;
     page: number;
     limit: number;
     skip: number;
@@ -147,18 +146,10 @@ export class AbstractDocument extends StaticDocument {
         const limit = options?.limit || 0;
         const skip = page * limit;
 
-        const total = await this.countDocuments(filter, { ...options });
+        const total = await this.countDocuments(filter, { ...options, limit: null, skip: 0 });
+        const items = await this.findMany<T>(filter, { ...options, limit: limit, skip: skip });
 
-        const items = await this.findMany<T>(filter, { ...options, skip, limit });
-
-        return {
-            total: total,
-            current: items.length,
-            page: page,
-            limit: limit,
-            skip: skip,
-            items: items
-        };
+        return { total, page, limit, skip, items };
     }
 
     public static async updateMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, update: UpdateQuery<T> = {}, options?: QueryOptions | null): Promise<UpdateResult> {
