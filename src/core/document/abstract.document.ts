@@ -1,6 +1,7 @@
 import { ObjectId } from 'bson';
 import { validate } from 'class-validator';
 import { ValidatorOptions } from 'class-validator/types/validation/ValidatorOptions';
+import { cloneDeep } from 'lodash';
 import { AggregateOptions, UpdateResult } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { FilterQuery, PipelineStage, PopulateOptions, QueryOptions, UpdateQuery } from 'mongoose';
@@ -292,7 +293,7 @@ export class AbstractDocument extends StaticDocument {
     }
 
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
-        await this._document.populate({ ...options });
+        await this._document.populate(cloneDeep(options));
         await this.loadValuesFromDocument();
     }
 
