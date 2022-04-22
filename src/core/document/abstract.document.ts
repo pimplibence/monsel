@@ -83,8 +83,23 @@ export class AbstractDocument extends StaticDocument {
             return mongooseDocument;
         }
 
-        // instanceof ObjectId -> Not populated and it`s a simple ObjectId
+        // instanceof ObjectId -> Not populated and it`s a simple ObjectId // DISCLAIMER -> This is NOT working now!!!
         if (mongooseDocument instanceof ObjectId) {
+            return mongooseDocument;
+        }
+
+        // instanceof ObjectId -> Not populated and it`s a simple mongoose.Types.ObjectId // DISCLAIMER -> This is working now!!!
+        if (mongooseDocument instanceof mongoose.Types.ObjectId) {
+            return mongooseDocument;
+        }
+
+        // Same as prev, but -> mongoose.Schema.Types.ObjectId
+        if (mongooseDocument instanceof mongoose.Schema.Types.ObjectId) {
+            return mongooseDocument;
+        }
+
+        // Same as prev, but -> mongoose.SchemaTypes.ObjectId
+        if (mongooseDocument instanceof mongoose.SchemaTypes.ObjectId) {
             return mongooseDocument;
         }
 
@@ -319,6 +334,7 @@ export class AbstractDocument extends StaticDocument {
         }
 
         this._id = this._document._id;
+        this.__v = this._document.__v;
 
         await AbstractDocument.mapInstanceTree(this, this._document);
     }

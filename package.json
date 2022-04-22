@@ -1,6 +1,6 @@
 {
   "name": "@kifly/monsel",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "",
   "main": "src/application.ts",
   "license": "MIT",

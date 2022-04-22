@@ -4,6 +4,7 @@ import { DecoratorHelper } from '../libs/decorators/decorator.helper';
 
 export class StaticDocument {
     public _id: ObjectId | string;
+    public __v: number;
 
     /**
      * Mongoose Document
