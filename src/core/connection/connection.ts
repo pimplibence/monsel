@@ -15,6 +15,12 @@ export class Connection {
 
     constructor(options: ConnectionOptions) {
         this.options = options;
+
+        /**
+         * This is a very opinionated step!
+         * By default, i think, this is should be false
+         */
+        mongoose.set('strictQuery', false);
     }
 
     public async connect() {
