@@ -313,8 +313,8 @@ export class AbstractDocument extends StaticDocument {
         return this;
     }
 
-    public async remove() {
-        return this._document.remove();
+    public async remove(options?: mongoose.QueryOptions) {
+        return this._document.remove(options);
     }
 
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
