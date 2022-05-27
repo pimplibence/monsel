@@ -268,6 +268,13 @@ export class AbstractDocument extends StaticDocument {
 
             const schemaConfig = this.getSchemaConfig();
 
+            /**
+             * Fix mongoose versioning error
+             * - (not mongoose error, it was me)
+             */
+
+            this._document = await model.findById(this._id, {}, { ...options });
+
             for (const key in schemaConfig) {
                 const schemaDef = schemaConfig[key];
 
@@ -344,7 +351,6 @@ export class AbstractDocument extends StaticDocument {
         }
 
         this._id = this._document._id;
-        this.__v = this._document.__v;
 
         await AbstractDocument.mapInstanceTree(this, this._document);
     }
