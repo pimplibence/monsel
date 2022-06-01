@@ -1,4 +1,4 @@
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { HumanDocument } from '../documents/human.document';
 
 export const seedHumans = async (amount: number) => {

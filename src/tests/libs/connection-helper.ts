@@ -4,7 +4,7 @@ import { AbstractDocument } from '../../core/document/abstract.document';
 global.__connection = null;
 
 export const connectDatabase = async (documents: Array<typeof AbstractDocument>) => {
-    const connectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://root:abcd1234abcd1234@localhost:50001/tests?authSource=admin';
+    const connectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost:27017/monsel';
 
     global.__connection = new Connection({
         uri: connectionString,

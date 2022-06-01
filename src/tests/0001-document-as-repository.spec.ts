@@ -14,7 +14,5 @@ describe('Document as repository', async () => {
 
     it('create', async () => {
         const humans = await HumanDocument.countDocuments({}, { limit: null });
-
-        console.log(humans);
     });
 });
