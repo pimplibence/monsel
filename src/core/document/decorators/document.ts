@@ -20,7 +20,6 @@ export const document = (options: DocumentOptions = {}) => {
         /**
          * Document Options
          */
-
         const parentOptions: DocumentOptions = DecoratorHelper.getParentMetadata(target, 'DocumentOptions');
 
         options.collection = options.collection || parentOptions.collection;

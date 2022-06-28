@@ -11,6 +11,6 @@ export const property = (options?: mongoose.SchemaDefinitionProperty) => {
 
         DecoratorHelper.setMetadata(target.constructor, 'SchemaConfig', schema);
 
-        return target;
+        return target.constructor;
     };
 };

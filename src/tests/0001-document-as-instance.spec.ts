@@ -19,6 +19,7 @@ describe('Document as instance', async () => {
 
         expect(instance.createdAt).is.equals(undefined);
         expect(instance.createdAt).is.equals(undefined);
+        expect(instance.random).is.equals(undefined);
 
         await instance.save(null, { skipValidation: false });
 
@@ -26,6 +27,7 @@ describe('Document as instance', async () => {
         expect(instance.age).is.equals(28);
         expect(instance.createdAt).is.instanceof(Date);
         expect(instance.updatedAt).is.instanceof(Date);
+        expect(instance.random).is.a('number');
 
         const fetched = await HumanDocument.findOne<HumanDocument>();
 
@@ -33,5 +35,6 @@ describe('Document as instance', async () => {
         expect(instance.age).is.equals(fetched.age);
         expect(instance.createdAt.toString()).is.equals(fetched.createdAt.toString());
         expect(instance.updatedAt.toString()).is.equals(fetched.updatedAt.toString());
+        expect(instance.random).is.equals(fetched.random);
     });
 });

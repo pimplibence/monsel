@@ -10,7 +10,7 @@ export const lifecycleCallback = (type: string) => {
 
         DecoratorHelper.setMetadata(target.constructor, 'LifecycleCallbacks', currentItems);
 
-        return target;
+        return target.constructor;
     };
 };
 

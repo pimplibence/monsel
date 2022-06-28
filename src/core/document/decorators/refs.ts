@@ -17,6 +17,6 @@ export const refs = (typeFn: () => typeof AbstractDocument, options?: mongoose.S
 
         DecoratorHelper.setMetadata(target.constructor, 'SchemaConfig', schema);
 
-        return target;
+        return target.constructor;
     };
 };
