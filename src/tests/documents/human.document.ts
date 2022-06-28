@@ -1,7 +1,8 @@
-import { IsString, Min } from 'class-validator';
+import { IsString } from 'class-validator';
 import { document } from '../../core/document/decorators/document';
 import { beforeCreate, beforeUpdate } from '../../core/document/decorators/lifecycle-callback';
 import { property } from '../../core/document/decorators/property';
+import { ref } from '../../core/document/decorators/ref';
 import { BaseDocument } from '../../extra/base.document';
 
 @document({
@@ -13,12 +14,11 @@ export class HumanDocument extends BaseDocument {
     @property()
     public name: string;
 
-    @Min(0)
-    @property()
-    public age: number;
-
     @property()
     public random: number;
+
+    @ref(() => HumanDocument)
+    public brother: HumanDocument;
 
     @beforeCreate()
     @beforeUpdate()

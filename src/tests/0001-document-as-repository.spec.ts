@@ -12,7 +12,7 @@ describe('Document as repository', async () => {
     after(async () => resetDatabase());
     after(async () => disconnectDatabase());
 
-    it('create', async () => {
+    it('count', async () => {
         const humans = await HumanDocument.countDocuments({}, { limit: null });
     });
 });
