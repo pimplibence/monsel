@@ -60,8 +60,6 @@ export class AbstractDocument extends StaticDocument {
                 }
 
                 instance[key] = mResult;
-
-                // instance[key] = await Promise.all(values?.[key]?.map((item, index) => this.mapInstanceTreeGetPropertyValue(item, instance?.[key]?.[index], ref)));
             } else {
                 instance[key] = await AbstractDocument.mapInstanceTreeGetPropertyValue(values?.[key], instance?.[key], ref);
             }
