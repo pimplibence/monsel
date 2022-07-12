@@ -57,7 +57,7 @@ export class StaticDocument {
                 const opts = {
                     ...item.options,
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: item.ref.getModelName()
+                    ref: item?.ref?.()?.getModelName()
                 };
 
                 schemaConstructorConfig[key] = item.multi

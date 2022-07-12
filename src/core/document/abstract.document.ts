@@ -45,7 +45,7 @@ export class AbstractDocument extends StaticDocument {
 
         for (const key in schemaConfig) {
             const schemaOption = schemaConfig?.[key];
-            const ref: typeof AbstractDocument = schemaOption?.ref;
+            const ref: typeof AbstractDocument = schemaOption?.ref?.();
             const multi = schemaOption?.multi;
 
             if (!ref) {

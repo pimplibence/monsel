@@ -10,7 +10,7 @@ export const refs = (typeFn: () => typeof AbstractDocument, options?: mongoose.S
 
         schema[propertyKey] = {
             propertyKey: propertyKey,
-            ref: typeFn(),
+            ref: () => typeFn(),
             multi: true,
             options: options
         };
