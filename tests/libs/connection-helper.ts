@@ -1,5 +1,5 @@
-import { Connection } from '../../core/connection/connection';
-import { AbstractDocument } from '../../core/document/abstract.document';
+import { Connection } from '../../src/core/connection/connection';
+import { AbstractDocument } from '../../src/core/document/abstract.document';
 
 global.__connection = null;
 

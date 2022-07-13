@@ -1,9 +1,9 @@
 import { IsString } from 'class-validator';
-import { document } from '../../core/document/decorators/document';
-import { beforeCreate, beforeUpdate } from '../../core/document/decorators/lifecycle-callback';
-import { property } from '../../core/document/decorators/property';
-import { ref } from '../../core/document/decorators/ref';
-import { BaseDocument } from '../../extra/base.document';
+import { document } from '../../src/core/document/decorators/document';
+import { beforeCreate, beforeUpdate } from '../../src/core/document/decorators/lifecycle-callback';
+import { property } from '../../src/core/document/decorators/property';
+import { ref } from '../../src/core/document/decorators/ref';
+import { BaseDocument } from '../../src/extra/base.document';
 
 @document({
     collection: 'human',

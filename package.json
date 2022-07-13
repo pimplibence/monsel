@@ -29,8 +29,8 @@
   },
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
-    "test": "./node_modules/mocha/bin/mocha.js -r ./node_modules/ts-node/register ./src/tests/**/*.spec.ts",
-    "test-coverage": "./node_modules/nyc/bin/nyc.js ./node_modules/mocha/bin/mocha -r ./node_modules/ts-node/register ./src/tests/**/*.spec.ts"
+    "test": "./node_modules/mocha/bin/mocha.js -r ./node_modules/ts-node/register tests/**/*.spec.ts",
+    "test-coverage": "./node_modules/nyc/bin/nyc.js ./node_modules/mocha/bin/mocha -r ./node_modules/ts-node/register tests/**/*.spec.ts"
   },
   "nyc": {
     "extension": [
