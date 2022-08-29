@@ -2,7 +2,7 @@ import { ObjectId } from 'bson';
 import { validate } from 'class-validator';
 import { ValidatorOptions } from 'class-validator/types/validation/ValidatorOptions';
 import { cloneDeep } from 'lodash';
-import { AggregateOptions, UpdateResult } from 'mongodb';
+import { AggregateOptions, CreateIndexesOptions, UpdateResult } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { FilterQuery, PipelineStage, PopulateOptions, QueryOptions, UpdateQuery } from 'mongoose';
 import { ValidationErrors } from '../../extra/validation.errors';
@@ -222,14 +222,19 @@ export class AbstractDocument extends StaticDocument {
         return items;
     }
 
-    public static async syncIndexes() {
+    public static async syncIndexes(options?: mongoose.SyncIndexesOptions) {
         const model = this.getModel();
-        return model.syncIndexes();
+        return model.syncIndexes(options);
     }
 
-    public static async createIndexes() {
+    public static async createIndexes(options?: CreateIndexesOptions) {
         const model = this.getModel();
-        return model.createIndexes();
+        return model.createIndexes(options);
+    }
+
+    public static async listIndexes() {
+        const model = this.getModel();
+        return model.listIndexes();
     }
 
     ////////////////////////////////////////

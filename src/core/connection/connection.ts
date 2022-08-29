@@ -1,4 +1,5 @@
 import { now } from 'microtime';
+import { CreateIndexesOptions } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { AbstractDocument } from "../document/abstract.document";
 
@@ -18,7 +19,7 @@ export class Connection {
 
         /**
          * This is a very opinionated step!
-         * By default, i think, this is should be false
+         * By default, i think, this should be false
          */
         mongoose.set('strictQuery', false);
     }
@@ -59,20 +60,20 @@ export class Connection {
         await this.mongoose.disconnect();
     }
 
-    public async createIndexes() {
+    public async createIndexes(options?: CreateIndexesOptions) {
         for (const document of this.options.documents) {
             const start = now();
-            await document.createIndexes();
+            await document.createIndexes(options);
             const duration = now() - start;
 
             this._log(`Index ensured (document: ${document.getModelName()}, duration: ${duration}µs)`);
         }
     }
 
-    public async syncIndexes() {
+    public async syncIndexes(options?: mongoose.SyncIndexesOptions) {
         for (const document of this.options.documents) {
             const start = now();
-            await document.syncIndexes();
+            await document.syncIndexes(options);
             const duration = now() - start;
 
             this._log(`Index synced  (document: ${document.getModelName()}, duration: ${duration}µs)`);
