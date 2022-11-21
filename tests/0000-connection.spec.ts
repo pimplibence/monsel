@@ -12,20 +12,7 @@ describe('Connection', async () => {
     after(async () => disconnectDatabase());
 
     it('check connection status', async () => {
-        const enableSharding = process.env.ENABLE_SHARDING === '1';
         const connection = getConnection();
-
-        if (enableSharding) {
-            await connection.mongoose.connection.db.admin().command({
-                enableSharding: 'tests'
-            });
-
-            await connection.mongoose.connection.db.admin().command({
-                shardCollection: 'tests.human',
-                key: { gender: 'hashed' }
-            });
-        }
-
         const stats = await connection.mongoose.connection.db.stats();
 
         expect(stats.ok).is.equals(1);
