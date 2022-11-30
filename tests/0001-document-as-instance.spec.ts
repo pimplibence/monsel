@@ -35,30 +35,4 @@ describe('Document as instance', async () => {
     });
 
     it('update', async () => void 0);
-
-    it('ref & populate', async () => {
-        const johnDoe = await HumanDocument.findOne<HumanDocument>();
-        const hisBrother = new HumanDocument();
-
-        hisBrother.name = 'John\'s Brother';
-        hisBrother.brother = johnDoe;
-
-        await hisBrother.save();
-
-        expect(hisBrother.brother.toString())
-            .is.eq(johnDoe._id.toString());
-
-        await hisBrother.populate([
-            { path: 'brother' }
-        ]);
-
-        expect(hisBrother.brother)
-            .is.instanceof(HumanDocument)
-            .and.has.property('name')
-            .is.equals(johnDoe.name);
-    });
-
-    it('refs & populate', async () => void 0);
-
-    it('populate', async () => void 0);
 });

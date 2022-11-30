@@ -101,7 +101,7 @@ export class AbstractDocument extends StaticDocument {
             return mongooseDocument;
         }
 
-        // Its a null -> Nothing to map
+        // Its a null/falsy -> Nothing to map
         if (!mongooseDocument) {
             return mongooseDocument;
         }
@@ -204,7 +204,7 @@ export class AbstractDocument extends StaticDocument {
     // Model.findOneAndReplace()
     // Model.findOneAndUpdate()
 
-    public static async aggregate<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<any[]> {
+    public static async aggregate<T extends AbstractDocument>(pipeline?: PipelineStage[], options?: AggregateOptions): Promise<any[] | any> {
         const model = this.getModel();
 
         return model.aggregate<mongoose.Document>(pipeline, { ...options });
@@ -327,7 +327,13 @@ export class AbstractDocument extends StaticDocument {
         return this._document.remove(options);
     }
 
+    /**
+     * @deprecated This method is deprecated and will be removed in future versions
+     * @param options
+     */
     public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
+        throw new Error('Populate feature is deprecated');
+
         await this._document.populate(cloneDeep(options));
         await this.loadValuesFromDocument();
     }

@@ -964,15 +964,15 @@
   resolved "https://verdaccio.repository.codebuild.hu/@types%2fchai/-/chai-4.3.4.tgz#e913e8175db8307d78b4e8fa690408ba6b65dee4"
   integrity sha512-KnRanxnpfpjUTqTCXslZSEdLfXExwgNxYPdiO2WGUj8+HDjFi8R3k5RVKPeSCzLjCcshCAtVO2QBbVuAV4kTnw==
 
-"@types/lodash@^4.14.188":
-  version "4.14.188"
-  resolved "https://verdaccio.repository.codebuild.hu/@types%2flodash/-/lodash-4.14.188.tgz#e4990c4c81f7c9b00c5ff8eae389c10f27980da5"
-  integrity sha512-zmEmF5OIM3rb7SbLCFYoQhO4dGt2FRM9AMkxvA3LaADOF1n8in/zGJlWji9fmafLoNyz+FoL6FE0SLtGIArD7w==
+"@types/lodash@^4.14.190":
+  version "4.14.190"
+  resolved "https://verdaccio.repository.codebuild.hu/@types%2flodash/-/lodash-4.14.190.tgz#d8e99647af141c63902d0ca53cf2b34d2df33545"
+  integrity sha512-5iJ3FBJBvQHQ8sFhEhJfjUP+G+LalhavTkYyrAYqz5MEJG+erSv0k9KJLb6q7++17Lafk1scaTIFXcMJlwK8Mw==
 
-"@types/mocha@^10.0.0":
-  version "10.0.0"
-  resolved "https://verdaccio.repository.codebuild.hu/@types%2fmocha/-/mocha-10.0.0.tgz#3d9018c575f0e3f7386c1de80ee66cc21fbb7a52"
-  integrity sha512-rADY+HtTOA52l9VZWtgQfn4p+UDVM2eDVkMZT1I6syp0YKxW2F9v+0pbRZLsvskhQv/vMb6ZfCay81GHbz5SHg==
+"@types/mocha@^10.0.1":
+  version "10.0.1"
+  resolved "https://verdaccio.repository.codebuild.hu/@types%2fmocha/-/mocha-10.0.1.tgz#2f4f65bb08bc368ac39c96da7b2f09140b26851b"
+  integrity sha512-/fvYntiO1GeICvqbQ3doGDIP97vWmvFt83GKguJ6prmQM2iXZfFcq6YE8KteFyRtX2/h5Hf91BYvPodJKFYv5Q==
 
 "@types/mongoose@^5.11.97":
   version "5.11.97"
@@ -1938,10 +1938,10 @@ mongoose@*:
     ms "2.1.3"
     sift "16.0.0"
 
-mongoose@^6.7.2:
-  version "6.7.2"
-  resolved "https://verdaccio.repository.codebuild.hu/mongoose/-/mongoose-6.7.2.tgz#457994b254a2afd1e03dd8f0b3046ff3d2ed276e"
-  integrity sha512-lrP2V5U1qhaf+z33fiIn7aYAZZ1fVDly+TkFRjTujNBF/FIHESATj2RbgAOSlWqv32fsZXkXejXzeVfjbv35Ow==
+mongoose@^6.7.4:
+  version "6.7.4"
+  resolved "https://verdaccio.repository.codebuild.hu/mongoose/-/mongoose-6.7.4.tgz#08d8e073945126cb702028c3ff4b02d80f9f0193"
+  integrity sha512-0LWMrOa5U43cR3I/iRPnmyedoa6T8+QPxmFYdPgx4WAS0CdbSbOzAFSKeU6bndUY6cs4VkxKZGcuDM0twystCg==
   dependencies:
     bson "^4.7.0"
     kareem "2.4.1"
@@ -2017,10 +2017,10 @@ node-releases@^2.0.2:
   resolved "http://verdaccio.repository.codebuild.hu/node-releases/-/node-releases-2.0.3.tgz#225ee7488e4a5e636da8da52854844f9d716ca96"
   integrity sha512-maHFz6OLqYxz+VQyCAtA3PTX4UP/53pa05fyDNc9CwjvJ0yEh6+xBwKsgCxMNhS8taUKBFYxfuiaD9U/55iFaw==
 
-node@^19.0.1:
-  version "19.0.1"
-  resolved "https://verdaccio.repository.codebuild.hu/node/-/node-19.0.1.tgz#2240ba1a411b08b225da7c43a585b60f8621fc70"
-  integrity sha512-cvMKIUNqvaWXxq4Do+7PTSFRDxRfNLqemS1BWpH8NDy2wvJtEEG45nOPU1z4xV+GC6WSgPD7D4+zSo+42DHgUA==
+node@^19.2.0:
+  version "19.2.0"
+  resolved "https://verdaccio.repository.codebuild.hu/node/-/node-19.2.0.tgz#f377e046002065fd1a9a23dd7bffc8026be77847"
+  integrity sha512-ETicZqrcApHCufk8L7HCO6eUe6HmZFN3YmAklYdETyp8Gi10UZGFvVJ/AvihE9i5CueXsebEP/7DgFKjohHXHw==
   dependencies:
     node-bin-setup "^1.0.0"
 
@@ -2510,10 +2510,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@^4.8.2:
-  version "4.8.4"
-  resolved "https://verdaccio.repository.codebuild.hu/typescript/-/typescript-4.8.4.tgz#c464abca159669597be5f96b8943500b238e60e6"
-  integrity sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==
+typescript@^4.9.3:
+  version "4.9.3"
+  resolved "https://verdaccio.repository.codebuild.hu/typescript/-/typescript-4.9.3.tgz#3aea307c1746b8c384435d8ac36b8a2e580d85db"
+  integrity sha512-CIfGzTelbKNEnLpLdGFgdyKhG23CKdKgQPOBc+OUNrkJ2vr+KSzsSV5kq5iWhEQbok+quxgGzrAtGWCyU7tHnA==
 
 undefsafe@^2.0.5:
   version "2.0.5"
