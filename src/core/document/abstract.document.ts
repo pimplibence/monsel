@@ -250,7 +250,10 @@ export class AbstractDocument extends StaticDocument {
     }
 
     public async save(options?: mongoose.SaveOptions, validatorOptions?: SaveValidatorOptions): Promise<this> {
-        this._session = options?.session;
+        if (options?.session) {
+            this._session = options?.session;
+        }
+
         const model = this.getModel();
 
         const isCreate = !this._document?._id;
