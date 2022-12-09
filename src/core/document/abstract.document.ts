@@ -119,10 +119,12 @@ export class AbstractDocument extends StaticDocument {
         return model.countDocuments(filter, { ...options });
     }
 
-    public static async distinct<T extends AbstractDocument>(key: string, filter: FilterQuery<T> = {}): Promise<any[]> {
+    public static async distinct<T extends AbstractDocument>(key: string, filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<any[]> {
         const model = this.getModel();
 
-        return model.distinct(key, filter);
+        return !!options
+            ? model.distinct(key, filter).setOptions({ ...options })
+            : model.distinct(key, filter);
     }
 
     public static async findMany<T extends AbstractDocument>(filter: FilterQuery<T> = {}, options?: QueryOptions | null): Promise<T[]> {
