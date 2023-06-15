@@ -329,18 +329,7 @@ export class AbstractDocument extends StaticDocument {
     }
 
     public async remove(options?: mongoose.QueryOptions) {
-        return this._document.remove(options);
-    }
-
-    /**
-     * @deprecated This method is deprecated and will be removed in future versions
-     * @param options
-     */
-    public async populate(options: PopulateOptions | PopulateOptions[]): Promise<void> {
-        throw new Error('Populate feature is deprecated');
-
-        await this._document.populate(cloneDeep(options));
-        await this.loadValuesFromDocument();
+        return this._document.deleteOne(options);
     }
 
     protected $session(): mongoose.ClientSession | undefined {

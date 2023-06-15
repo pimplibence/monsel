@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+import { range } from 'lodash';
+import { afterEach, beforeEach } from 'mocha';
 import { HumanDocument } from './documents/human.document';
 import { connectDatabase, disconnectDatabase, resetDatabase } from './libs/connection-helper';
 
@@ -7,9 +9,9 @@ const documents = [
 ];
 
 describe('Document as instance', async () => {
-    before(async () => connectDatabase(documents));
-    after(async () => resetDatabase());
-    after(async () => disconnectDatabase());
+    beforeEach(async () => connectDatabase(documents));
+    afterEach(async () => resetDatabase());
+    afterEach(async () => disconnectDatabase());
 
     it('create', async () => {
         const instance = new HumanDocument();
@@ -35,4 +37,22 @@ describe('Document as instance', async () => {
     });
 
     it('update', async () => void 0);
+
+    it('delete', async () => {
+        for (const item of range(3)) {
+            const instance = new HumanDocument();
+            instance.name = item.toString();
+            await instance.save({});
+        }
+
+        const i1 = await HumanDocument.findMany();
+
+        expect(i1.length).is.equals(3);
+
+        await i1[0].remove();
+
+        const i2 = await HumanDocument.findMany();
+
+        expect(i2.length).is.equals(2);
+    });
 });

@@ -5,7 +5,7 @@ export const seedHumans = async (amount: number) => {
     for (const item of Array(amount).fill(0)) {
         const instance = new HumanDocument();
 
-        instance.name = `${faker.name.firstName()} ${faker.name.lastName()}`;
+        instance.name = `${faker.person.firstName()} ${faker.person.lastName()}`;
 
         await instance.save();
     }

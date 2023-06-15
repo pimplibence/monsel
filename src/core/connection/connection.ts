@@ -3,7 +3,7 @@ import { CreateIndexesOptions } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { AbstractDocument } from "../document/abstract.document";
 
-interface ConnectionOptions {
+export interface ConnectionOptions {
     uri: string;
     options?: mongoose.ConnectOptions;
     documents: Array<typeof AbstractDocument>;

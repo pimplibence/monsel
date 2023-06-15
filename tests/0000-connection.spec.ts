@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { afterEach, beforeEach } from 'mocha';
 import { HumanDocument } from './documents/human.document';
 import { connectDatabase, disconnectDatabase, getConnection, resetDatabase } from './libs/connection-helper';
 
@@ -7,9 +8,9 @@ const documents = [
 ];
 
 describe('Connection', async () => {
-    before(async () => connectDatabase(documents));
-    after(async () => resetDatabase());
-    after(async () => disconnectDatabase());
+    beforeEach(async () => connectDatabase(documents));
+    afterEach(async () => resetDatabase());
+    afterEach(async () => disconnectDatabase());
 
     it('check connection status', async () => {
         const connection = getConnection();

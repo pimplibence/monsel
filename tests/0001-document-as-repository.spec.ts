@@ -7,10 +7,10 @@ const documents = [
 ];
 
 describe('Document as repository', async () => {
-    before(async () => connectDatabase(documents));
-    before(async () => seedHumans(10));
-    after(async () => resetDatabase());
-    after(async () => disconnectDatabase());
+    beforeEach(async () => connectDatabase(documents));
+    beforeEach(async () => seedHumans(10));
+    afterEach(async () => resetDatabase());
+    afterEach(async () => disconnectDatabase());
 
     it('count', async () => {
         const humans = await HumanDocument.countDocuments({}, { limit: null });
